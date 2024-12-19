@@ -1,6 +1,6 @@
 # Project Goal
 
-This project aims to assess how distribution shifts in the covariate distribution impact the performance of various models. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift.
+This project aims to assess how distribution shifts in the covariate distribution impact the performance of various models, for a binary classification problem. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift.
 
 ## Generic TODO
 
@@ -26,3 +26,10 @@ This project aims to assess how distribution shifts in the covariate distributio
 - **Tommaso:** Random Forest model and result analysis  
 - **Andrea:** XGBoost model and analysis  
 - **Giacomo:** Adaptation methods for XGBoost to improve prediction accuracy after data shift (or, more generally, boosting methods applied to all three previous models to enhance their predictive power)
+
+## Datasets
+
+first version of dataset:
+
+- df: 7 attributes + target variable (0,1) from a multivariate normal distribution (center=0 diagonal cov matrix)
+- df1: same but from a mixture (prob 0.7 for the first rv) with a multinormal scaled an translated.
