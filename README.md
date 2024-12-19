@@ -20,7 +20,7 @@ This project aims to assess how distribution shifts in the covariate distributio
   Assess model performance and analyze how it degrades as the distribution shifts.
 
 
-**Preliminary Division of Work:**
+## Preliminary Division of Work
 
 - **Giovanni:** Synthetic data generation and GAM model  
 - **Tommaso:** Random Forest model and result analysis  
