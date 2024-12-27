@@ -28,8 +28,4 @@ This project aims to assess how distribution shifts in the covariate distributio
 - **Giacomo:** Adaptation methods for XGBoost to improve prediction accuracy after data shift (or, more generally, boosting methods applied to all three previous models to enhance their predictive power)
 
 ## Datasets
-
-first version of dataset:
-
-- df: 7 attributes + target variable (0,1) from a multivariate normal distribution (center=0 diagonal cov matrix)
-- df1: same but from a mixture (prob 0.7 for the first rv) with a multinormal scaled an translated.
+
