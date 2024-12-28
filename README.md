@@ -8,7 +8,7 @@ This project aims to assess how simple *covariate shift* in the covariate distri
 Citing Dataset Shift in Machine Learning. United Kingdom: MIT Press, 2009.
 
 The most basic form of dataset shift occurs when the data is generated according to a model $P(y|x)P(x)$ and where the distribution $P(x)$ changes between training and test scenarios. As only the covariate distribution changes, this has been called covariate shift [Shimodaira, 2000].
-It will perhaps come as little surprise that the fact that the covariate distribution changes should have no effect on the model P(y|x∗). Intuitively this makes sense.
+It will perhaps come as little surprise that the fact that the covariate distribution changes should have no effect on the model $P(y|x∗)$. Intuitively this makes sense.
 
 **Is there really no model implication?**
 
