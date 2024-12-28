@@ -11,6 +11,7 @@ The most basic form of dataset shift occurs when the data is generated according
 It will perhaps come as little surprise that the fact that the covariate distribution changes should have no effect on the model P(y|x∗). Intuitively this makes sense.
 
 **Is there really no model implication?**
+
 **Are some models more robust than others w.r.t. simple covariate shift?**
 
 
