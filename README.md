@@ -26,7 +26,7 @@ It will perhaps come as little surprise that the fact that the covariate distrib
 - [ ] **Conclusions and Possible Improvements**:  
   Whats the best model? What is the most robust? What are possible improvements in the training phase to have better predictions after the shift?
 
-- [] **Analysis Extended to a Real Dataset**
+- [ ] **Analysis Extended to a Real Dataset**
   Possible extension of the study
 
 ## Preliminary Division of Work
