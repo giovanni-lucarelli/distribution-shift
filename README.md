@@ -2,6 +2,8 @@
 
 This project aims to assess how distribution shifts in the covariate distribution impact the performance of various models, for a binary classification problem. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift.
 
+
+
 ## Generic TODO
 
 - [ ] **Generate a Simple Dataset**:  
@@ -28,4 +30,10 @@ This project aims to assess how distribution shifts in the covariate distributio
 - **Giacomo:** Adaptation methods for XGBoost to improve prediction accuracy after data shift (or, more generally, boosting methods applied to all three previous models to enhance their predictive power)
 
 ## Datasets
-
+
+## References
+
+https://d2l.ai/chapter_linear-classification/environment-and-distribution-shift.html
+
+Dataset Shift in Machine Learning. United Kingdom: MIT Press, 2009.
+
