@@ -1,7 +1,7 @@
 # Project Goal
 
 This project aims to assess how simple *covariate shift* in the covariate distribution impact the performance of various robust models, for a regression problem and for a (binary) classification problem. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift and possible strategies to overcome this problem (e.g. overfitting, weighted test?). 
-1. toy problem: syntetic generated data
+1. toy problem: synthetic generated data
 2. real dataset (hous price, iris?)
 
 ## Theoretical description
