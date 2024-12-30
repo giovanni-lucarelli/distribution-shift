@@ -27,6 +27,9 @@ The dataset `train.csv` contains the "original" distribution that will be used t
 
 The `mix_j.csv` dataset contains statistical mixtures of train and shift for different values ​​of mixture $j$, in particular $j$ is the probability of sampling from the shifted distribution.
 
+**Note:** `train.csv` is equivalent to an hypothetical `mix_0.0.csv` as well as `shift.csv` to `mix_1.0.csv`. 
+
+
 In the `/data` folder there is also `Parameters.txt` that stores all the parameters used during the data generation, coulld be usefull for further analysis.
 
 ## Generic Roadmap
