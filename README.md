@@ -4,9 +4,11 @@ This project aims to assess how simple *covariate shift* in the covariate distri
 various robust models, for a synthetic binary  classification problem. Specifically, we evaluate the extent of 
 performance degradation under different scenarios of covariate shift and possible strategies to overcome this problem.
 
-Questins:
-- **Are some models more robust than others w.r.t. simple covariate shift?**
+Questions:
+
 - **How does a model's performance degrade following a simple distribution shift?**
+- **Are some models more robust than others w.r.t. simple covariate shift?**
+- **How can we improve performance after the shift?**
 
 
 ## Table of Contents
