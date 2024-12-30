@@ -17,7 +17,11 @@ This project aims to assess how simple *covariate shift* in the covariate distri
 
 ## Datasets
 
+All datasets consist of 3 features (X1, X2, X3), a target variable (Y) and a total of 1000 datapoints. The features are sampled from a multinormal distribution with randomly chosen mean and covariance matrix. The variable Y is computed by a polynomial of order 2 (with all possible interactions and randomly chosen coefficients) to which a sigmoid is applied to scale it in the range $[0,1]$. This last value obtained is then used as the probability of obtaining 1 in a Bernoulli trial.
 
+The dataset `train.csv` contains the "original" distribution that will be used to train the models; `shift.csv` contains values ​​of the features $X_i$ sampled from a new multinormal distribution (centered in the 90th quartile of the original and with random covariance) and Y computed on the new sample as described above (with the same coefficients - *no concept shift!*).
+
+The `mix_0.j.csv` dataset contains statistical mixtures of train and shift for different values ​​of mixture $0.j$, in particular $0.j$ is the probability of sampling from the shifted distribution.
 
 
 ## Theoretical description
