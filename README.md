@@ -1,8 +1,24 @@
 # Project Goal
 
-This project aims to assess how simple *covariate shift* in the covariate distribution impact the performance of various robust models, for a regression problem and for a (binary) classification problem. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift and possible strategies to overcome this problem (e.g. overfitting, weighted test?). 
+This project aims to assess how simple *covariate shift* in the covariate distribution impact the performance of various robust models, for a synthetic binary  classification problem. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift and possible strategies to overcome this problem (e.g. overfitting, weighted test?). 
 1. toy problem: synthetic generated data
 2. real dataset (hous price, iris?)
+
+
+## Table of Contents
+- [Project Goal](#project-goal)
+  - [Table of Contents](#table-of-contents)
+  - [Datasets](#datasets)
+  - [Theoretical description](#theoretical-description)
+  - [Generic Roadmap](#generic-roadmap)
+  - [Preliminary Division of Work](#preliminary-division-of-work)
+  - [References](#references)
+
+
+## Datasets
+
+
+
 
 ## Theoretical description
 Citing Dataset Shift in Machine Learning. United Kingdom: MIT Press, 2009.
@@ -15,29 +31,18 @@ It will perhaps come as little surprise that the fact that the covariate distrib
 **Are some models more robust than others w.r.t. simple covariate shift?**
 
 
-## Generic TODO
+## Generic Roadmap
 
-- [ ] **Generate a Simple Dataset**:  
-  One train set and multiple test sets relative to various covariate shift
-
-- [ ] **Run Models**:  
-  Train several different models end evaluate the performances on the different test sets
-
-- [ ] **Conclusions and Possible Improvements**:  
-  Whats the best model? What is the most robust? What are possible improvements in the training phase to have better predictions after the shift?
-
-- [ ] **Analysis Extended to a Real Dataset**
-  Possible extension of the study
+1. Data generation for a synthetic bynary classification problem
+2. Fit of different models and study of performance degradation for various mixtures
+3. Study on possible improvements
 
 ## Preliminary Division of Work
 
 - **Giovanni:** Synthetic data generation and GAM model  
-- **Tommaso:** Random Forest model and result analysis  
-- **Andrea:** XGBoost model and analysis  
-- **Giacomo:** Adaptation methods for XGBoost (or other models) to improve prediction accuracy after data shift.
-
-## Synthetic Datasets
-
+- **Tommaso:** Random Forest  
+- **Andrea:** Boosting models   
+- **Giacomo:** Adaptation methods to improve performance after data shift.
 
 ## References
 
@@ -46,4 +51,3 @@ https://d2l.ai/chapter_linear-classification/environment-and-distribution-shift.
 Dataset Shift in Machine Learning. United Kingdom: MIT Press, 2009.
 
 H. Shimodaira. Improving predictive inference under covariate shift by weighting the log-likelihood function. Journal of Statistical Planning and Inference, 90: 227–244, 2000.
-
