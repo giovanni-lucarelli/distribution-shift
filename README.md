@@ -1,19 +1,21 @@
-# Project Goal
+# Distribution Shift
 
-This project aims to assess how simple *covariate shift* in the covariate distribution impact the performance of various robust models, for a synthetic binary  classification problem. Specifically, we evaluate the extent of performance degradation under different scenarios of covariate shift and possible strategies to overcome this problem (e.g. overfitting, weighted test?). 
-1. toy problem: synthetic generated data
-2. real dataset (hous price, iris?)
+This project aims to assess how simple *covariate shift* in the covariate distribution impact the performance of 
+various robust models, for a synthetic binary  classification problem. Specifically, we evaluate the extent of 
+performance degradation under different scenarios of covariate shift and possible strategies to overcome this problem.
+
+Questins:
+- **Are some models more robust than others w.r.t. simple covariate shift?**
+- **How does a model's performance degrade following a simple distribution shift?**
 
 
 ## Table of Contents
-- [Project Goal](#project-goal)
+- [Distribution Shift](#distribution-shift)
   - [Table of Contents](#table-of-contents)
   - [Datasets](#datasets)
-  - [Theoretical description](#theoretical-description)
   - [Generic Roadmap](#generic-roadmap)
   - [Preliminary Division of Work](#preliminary-division-of-work)
   - [References](#references)
-
 
 ## Datasets
 
@@ -21,18 +23,7 @@ All datasets consist of 3 features (X1, X2, X3), a target variable (Y) and a tot
 
 The dataset `train.csv` contains the "original" distribution that will be used to train the models; `shift.csv` contains values ​​of the features $X_i$ sampled from a new multinormal distribution (centered in the 90th quartile of the original and with random covariance) and Y computed on the new sample as described above (with the same coefficients - *no concept shift!*).
 
-The `mix_0.j.csv` dataset contains statistical mixtures of train and shift for different values ​​of mixture $0.j$, in particular $0.j$ is the probability of sampling from the shifted distribution.
-
-
-## Theoretical description
-Citing Dataset Shift in Machine Learning. United Kingdom: MIT Press, 2009.
-
-The most basic form of dataset shift occurs when the data is generated according to a model $P(y|x)P(x)$ and where the distribution $P(x)$ changes between training and test scenarios. As only the covariate distribution changes, this has been called covariate shift [Shimodaira, 2000].
-It will perhaps come as little surprise that the fact that the covariate distribution changes should have no effect on the model $P(y|x^∗)$. Intuitively this makes sense.
-
-**Is there really no model implication?**
-
-**Are some models more robust than others w.r.t. simple covariate shift?**
+The `mix_j.csv` dataset contains statistical mixtures of train and shift for different values ​​of mixture $j$, in particular $j$ is the probability of sampling from the shifted distribution.
 
 
 ## Generic Roadmap
