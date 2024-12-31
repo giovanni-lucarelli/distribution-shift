@@ -36,7 +36,7 @@ def evaluate_models_on_shifts(
     # Load original => train data
     df_orig = pd.read_csv(os.path.join(folder, "train.csv"))
     X_train = df_orig.drop(target, axis=1)
-    y_train = df_orig[target]
+    # y_train = df_orig[target]
     
     plt.figure(figsize=fig_size)
     if not color_map:
@@ -45,7 +45,7 @@ def evaluate_models_on_shifts(
             "GradientBoostingClassifier": "red"}  # default map
     
     for name, model in models.items():
-        model.fit(X_train, y_train)
+        # model.fit(X_train, y_train)
         color = color_map.get(name, "green")    # fallback color
         # Evaluate on shifted sets
         test_files = [f for f in os.listdir(folder) if f.startswith("mix_")]
