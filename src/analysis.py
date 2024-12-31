@@ -11,7 +11,7 @@ def evaluate_models_on_shifts(
     models,
     folder: str = "data",
     target: str = 'Y',
-    fig_size=(15, 5),
+    fig_size=(8, 8),
     color_map=None
 ) -> None:
      
@@ -34,13 +34,13 @@ def evaluate_models_on_shifts(
         Color mapping for models.
     """
     
-    plt.figure(figsize=fig_size)
     if not color_map:
         color_map = {
             "DecisionTreeClassifier": "blue", 
             "GradientBoostingClassifier": "red"}  # default map
     
     for name, model in models.items():
+        plt.figure(figsize=fig_size)
         color = color_map.get(name, "green")    # fallback color
         # Evaluate on shifted sets
         test_files = [f for f in os.listdir(folder) if f.startswith("mix_")]
@@ -50,7 +50,12 @@ def evaluate_models_on_shifts(
             y_test = df_test[target]
             
             y_pred = model.predict(X_test)
-            y_pred_proba = model.predict_proba(X_test)[:, 1]
+            if hasattr(model, "predict_proba"):
+                y_pred_proba = model.predict_proba(X_test)
+                if y_pred_proba.ndim == 2:
+                    y_pred_proba = y_pred_proba[:, 1]                   
+            else:
+                y_pred_proba = y_pred
             
             acc = accuracy_score(y_test, y_pred)
             f1_ = f1_score(y_test, y_pred)
@@ -65,17 +70,19 @@ def evaluate_models_on_shifts(
             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
             label_str = f"{name}-{test_file} (AUC={auc_:.3f})"
             plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
-    
-    
-    plt.plot([0,1],[0,1],'k--')
-    plt.xlim([0,1])
-    plt.ylim([0,1.05])
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.title("ROC Curves on Shifted Test Sets")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.show()
+
+        # one plot per model
+        plt.plot([0,1],[0,1],'k--')
+        plt.xlim([0,1])
+        plt.ylim([0,1.05])
+        plt.xlabel("False Positive Rate")
+        plt.ylabel("True Positive Rate")
+        plt.title("ROC Curves on Shifted Test Sets")
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.show()
+        plt.close()
+        
 
 def compare_adversarial_training(
     folder: str = "data",
