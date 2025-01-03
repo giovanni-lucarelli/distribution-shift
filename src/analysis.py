@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, roc_curve, classification_report
-from src.models import adversarial_training
+from src.robust_training import adversarial
+from src.utils import pred_proba_1d, get_color_gradient
+from src.robust_training.adversarial import AdversarialTrainer
 
 # TODO: search for the best hyperparameters for the models
 
@@ -37,25 +39,23 @@ def evaluate_models_on_shifts(
     if not color_map:
         color_map = {
             "DecisionTreeClassifier": "blue", 
-            "GradientBoostingClassifier": "red"}  # default map
+            "GradientBoostingClassifier": "red",
+            "LogisticGAM" : "orange"
+        }
     
     for name, model in models.items():
         plt.figure(figsize=fig_size)
         color = color_map.get(name, "green")    # fallback color
         # Evaluate on shifted sets
-        test_files = [f for f in os.listdir(folder) if f.startswith("mix_")]
-        for test_file in sorted(test_files):
+        test_files = sorted([f for f in os.listdir(folder) if f.startswith("mix_")])
+        colors = get_color_gradient(color, len(test_files))
+        for test_file, color in zip(test_files, colors):
             df_test = pd.read_csv(os.path.join(folder, test_file))
             X_test = df_test.drop(columns=[target])
             y_test = df_test[target]
             
             y_pred = model.predict(X_test)
-            if hasattr(model, "predict_proba"):
-                y_pred_proba = model.predict_proba(X_test)
-                if y_pred_proba.ndim == 2:
-                    y_pred_proba = y_pred_proba[:, 1]                   
-            else:
-                y_pred_proba = y_pred
+            y_pred_proba = pred_proba_1d(model, X_test)
             
             acc = accuracy_score(y_test, y_pred)
             f1_ = f1_score(y_test, y_pred)
@@ -87,8 +87,8 @@ def evaluate_models_on_shifts(
 def compare_adversarial_training(
     folder: str = "data",
     target='Y',
-    base_model_class=None,
-    base_model_params=None,
+    model_class=None,
+    model_params=None,
     adv_params=None
 ) -> None:
     """
@@ -102,12 +102,11 @@ def compare_adversarial_training(
     X_train = df_orig.drop(target, axis=1)
     y_train = df_orig[target]
     
-    # Use fallback to GBC if none provided
-    if base_model_class is None:
+    if model_class is None:
         from sklearn.ensemble import GradientBoostingClassifier
-        base_model_class = GradientBoostingClassifier
-    if base_model_params is None:
-        base_model_params = {
+        model_class = GradientBoostingClassifier
+    if model_params is None:
+        model_params = {
             'learning_rate': 0.05,
             'max_depth': 4,
             'max_features': 'log2',
@@ -115,46 +114,52 @@ def compare_adversarial_training(
             'n_estimators': 100,
             'subsample': 0.7
         }
-    
+        
     # Normal model
-    normal_model = base_model_class(**base_model_params)
-    normal_model.fit(X_train, y_train)
+    model = model_class(**model_params)
+    model.fit(X_train, y_train)
     
     if adv_params is None:
-        adv_params = {'epsilon': 0.2}
+        adv_params = {'epsilon': 0.2, 'max_rounds': 3}
     
-    # Adversarial training
-    adv_model, _, _ = adversarial_training(
-        X_train, y_train,
-        base_model_class=base_model_class,
-        base_model_params=base_model_params,
-        **adv_params
-    )
+    # Use AdversarialTrainer
+    adv_trainer = AdversarialTrainer(model_class=model_class, **adv_params)
+    adv_trainer.fit(X_train, y_train, **model_params)
+    adv_model = adv_trainer.model
     
     # 2) Evaluate on shifted sets
     test_files = [f for f in os.listdir(folder) if f.startswith("mix_")]
     
-    print("\n=== Evaluate Normal vs. Adversarially Trained Model ===\n")
+    max_len = 60
+    model_name = model.__class__.__name__
+    len_space = (max_len - len(model_name)) // 2
+    corrector = ' ' if len(model_name) % 2 == 1 else ''
+    print(f" ╔{'═'*(max_len)}╗")
+    print(f" ║{' '*len_space}{model_name}{' '*len_space}{corrector}║")
+    print(f" ║{' '*((max_len - 38)//2)}Normal vs. Adversarially Trained Model{' '*((max_len - 38)//2)}║")
+    print(f" ╠{'═'*(max_len)}╣")
     for test_file in sorted(test_files):
         df_test = pd.read_csv(os.path.join(folder, test_file))
         X_test = df_test[X_train.columns]
         y_test = df_test[target]
         
         # Normal
-        y_pred_n = normal_model.predict(X_test)
-        y_proba_n = normal_model.predict_proba(X_test)[:, 1]
+        y_pred_n = model.predict(X_test)
+        y_proba_n = pred_proba_1d(model, X_test)
         acc_n = accuracy_score(y_test, y_pred_n)
         f1_n = f1_score(y_test, y_pred_n)
         auc_n = roc_auc_score(y_test, y_proba_n)
         
         # Adversarial
         y_pred_a = adv_model.predict(X_test)
-        y_proba_a = adv_model.predict_proba(X_test)[:, 1]
+        y_proba_a = pred_proba_1d(adv_model, X_test)
         acc_a = accuracy_score(y_test, y_pred_a)
         f1_a = f1_score(y_test, y_pred_a)
         auc_a = roc_auc_score(y_test, y_proba_a)
         
-        print(f"Shifted file: {test_file}")
-        print(f"  Normal Model   => Acc: {acc_n:.3f}, F1: {f1_n:.3f}, AUC: {auc_n:.3f}")
-        print(f"  AdvTrain Model => Acc: {acc_a:.3f}, F1: {f1_a:.3f}, AUC: {auc_a:.3f}")
-        print("---------------------------------------------------")
+        print(f" ║ Shifted file: {test_file}{' '*(max_len - 15 - len(test_file))}║")
+        print(f" ║\t Normal Model   => Acc: {acc_n:.3f}, F1: {f1_n:.3f}, AUC: {auc_n:.3f}{(max_len - 58)*' '}║")
+        print(f" ║\t AdvTrain Model => Acc: {acc_a:.3f}, F1: {f1_a:.3f}, AUC: {auc_a:.3f}{(max_len - 58)*' '}║")
+        if test_file != test_files[-1]:
+            print(f" ╟{'─'*(max_len)}╢")
+    print(f" ╚{'═'*(max_len)}╝\n")
