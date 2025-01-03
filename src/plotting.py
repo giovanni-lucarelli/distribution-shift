@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def visualize_feature_shifts(
-    folder: str = "data",
-    original_file: str = "train.csv",
-    shift_prefix: str = "mix_",
+    df_dict: dict,
+    original_file: float = 0.0,
     features_to_plot: list = None,
     figsize_base: tuple = (6, 4),
     alpha: float = 0.3
@@ -15,12 +14,16 @@ def visualize_feature_shifts(
     """
     Enhanced visualization of feature distributions and relationships.
     """
-    # Load data
-    files = sorted([f for f in os.listdir(folder) if f.endswith(".csv")])
-    original_file = [f for f in files if original_file in f][0]
-    shifted_files = sorted([f for f in files if shift_prefix in f])
-    
-    df_orig = pd.read_csv(os.path.join(folder, original_file))
+    # Make a copy of the dictionary
+    shifted_dict = df_dict.copy()
+
+    # Pop the original dataset from the copied dictionary
+    df_orig = shifted_dict.pop(original_file, None)
+
+    if df_orig is None:
+        raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
+
+    shifted_dict = dict(sorted(shifted_dict.items()))
     
     # Set default features if None
     if features_to_plot is None:
@@ -46,9 +49,8 @@ def visualize_feature_shifts(
             
             ax.scatter(df_orig[feat1], df_orig[feat2], alpha=alpha, label='Original')
             
-            for sf in shifted_files:
-                df_s = pd.read_csv(os.path.join(folder, sf))
-                ax.scatter(df_s[feat1], df_s[feat2], alpha=alpha, label=sf.replace('.csv',''))
+            for mix, shifted_df in shifted_dict.items():
+                ax.scatter(shifted_df[feat1], shifted_df[feat2], alpha=alpha, label=mix)
             
             ax.set_xlabel(feat1)
             ax.set_ylabel(feat2)
@@ -62,9 +64,8 @@ def visualize_feature_shifts(
     plt.show()
     
     # 2. Distribution Plots
-    for sf in shifted_files:
-        df_s = pd.read_csv(os.path.join(folder, sf))
-        
+    for mix, shifted_df in shifted_dict.items():
+
         n_features = len(features_to_plot)
         n_cols = min(3, n_features)
         n_rows = (n_features + n_cols - 1) // n_cols
@@ -78,8 +79,8 @@ def visualize_feature_shifts(
             if idx < len(axes):
                 sns.histplot(df_orig[feature], color="blue", alpha=0.4,
                            ax=axes[idx], label=f'Original {feature}', kde=True)
-                sns.histplot(df_s[feature], color="red", alpha=0.4,
-                           ax=axes[idx], label=f'{sf} {feature}', kde=True)
+                sns.histplot(shifted_df[feature], color="red", alpha=0.4,
+                           ax=axes[idx], label=f'{mix} {feature}', kde=True)
                 axes[idx].set_title(f"Distribution of {feature}")
                 axes[idx].legend()
         
@@ -87,6 +88,6 @@ def visualize_feature_shifts(
         for idx in range(len(features_to_plot), len(axes)):
             fig_dist.delaxes(axes[idx])
             
-        plt.suptitle(f"Feature Distributions Comparison: {sf}")
+        plt.suptitle(f"Feature Distributions Comparison: {mix}")
         plt.tight_layout()
         plt.show()

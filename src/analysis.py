@@ -9,7 +9,8 @@ from src.models import adversarial_training
 
 def evaluate_models_on_shifts(
     models,
-    folder: str = "data",
+    df_dict: dict,
+    original_file: float = 0.0,
     target: str = 'Y',
     fig_size=(8, 8),
     color_map=None
@@ -24,8 +25,8 @@ def evaluate_models_on_shifts(
     ----------
     models : dict
         Dictionary of models to train and evaluate.
-    folder : str, optional
-        Folder containing 'train.csv' and 'mix_*.csv'.
+    df_dict : dict
+        Dictionary of dataframes for each mixture.
     target : str, optional
         Target column name.
     fig_size : tuple, optional
@@ -42,12 +43,22 @@ def evaluate_models_on_shifts(
     for name, model in models.items():
         plt.figure(figsize=fig_size)
         color = color_map.get(name, "green")    # fallback color
+        
         # Evaluate on shifted sets
-        test_files = [f for f in os.listdir(folder) if f.startswith("mix_")]
-        for test_file in sorted(test_files):
-            df_test = pd.read_csv(os.path.join(folder, test_file))
-            X_test = df_test.drop(columns=[target])
-            y_test = df_test[target]
+        # Make a copy of the dictionary
+        shifted_dict = df_dict.copy()
+
+        # Pop the original dataset from the copied dictionary
+        df_orig = shifted_dict.pop(original_file, None)
+
+        if df_orig is None:
+            raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
+
+        shifted_dict = dict(sorted(shifted_dict.items()))
+        
+        for mix, shifted_df in shifted_dict.items():
+            X_test = shifted_df.drop(columns=[target])
+            y_test = shifted_df[target]
             
             y_pred = model.predict(X_test)
             if hasattr(model, "predict_proba"):
@@ -61,14 +72,14 @@ def evaluate_models_on_shifts(
             f1_ = f1_score(y_test, y_pred)
             auc_ = roc_auc_score(y_test, y_pred_proba)
             
-            print(f"=== {name} on {test_file} ===")
+            print(f"=== {name} on {mix} ===")
             print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
             print(classification_report(y_test, y_pred))
             print("---------------------------------------------------")
             
             # ROC curve
             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-            label_str = f"{name}-{test_file} (AUC={auc_:.3f})"
+            label_str = f"{name}-{mix} (AUC={auc_:.3f})"
             plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
 
         # one plot per model
