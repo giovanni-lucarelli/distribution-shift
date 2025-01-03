@@ -11,8 +11,12 @@ from src.robust_training.adversarial import AdversarialTrainer
 
 def evaluate_models_on_shifts(
     models,
-    df_dict: dict,
+    #? old
+    folder: str = "data",
+    #? new
+    df_dict: dict = None,
     original_file: float = 0.0,
+    #?
     target: str = 'Y',
     fig_size=(8, 8),
     color_map=None
@@ -27,8 +31,8 @@ def evaluate_models_on_shifts(
     ----------
     models : dict
         Dictionary of models to train and evaluate.
-    df_dict : dict
-        Dictionary of dataframes for each mixture.
+    folder : str, optional
+        Folder containing 'train.csv' and 'mix_*.csv'.
     target : str, optional
         Target column name.
     fig_size : tuple, optional
@@ -48,21 +52,49 @@ def evaluate_models_on_shifts(
         plt.figure(figsize=fig_size)
         color = color_map.get(name, "green")    # fallback color
         
-        # Evaluate on shifted sets
-        # Make a copy of the dictionary
-        shifted_dict = df_dict.copy()
-
-        # Pop the original dataset from the copied dictionary
-        df_orig = shifted_dict.pop(original_file, None)
-
-        if df_orig is None:
-            raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
-
-        shifted_dict = dict(sorted(shifted_dict.items()))
+        #? new
+        #shifted_dict = df_dict.copy()
+        #
+        ## Pop the original dataset from the copied dictionary
+        #df_orig = shifted_dict.pop(original_file, None)
+        #
+        #if df_orig is None:
+        #    raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
+        #
+        #shifted_dict = dict(sorted(shifted_dict.items()))
+        #
+        #for mix, shifted_df in shifted_dict.items():
+        #    X_test = shifted_df.drop(columns=[target])
+        #    y_test = shifted_df[target]
+        #    
+        #    y_pred = model.predict(X_test)
+        #    y_pred_proba = pred_proba_1d(model, X_test)
+        #    
+        #    acc = accuracy_score(y_test, y_pred)
+        #    f1_ = f1_score(y_test, y_pred)
+        #    auc_ = roc_auc_score(y_test, y_pred_proba)
+        #    
+        #    print(f"=== {name} on {mix} ===")
+        #    print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
+        #    print(classification_report(y_test, y_pred))
+        #    print("---------------------------------------------------")
+        #    
+        #    # ROC curve
+        #    fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+        #    label_str = f"{name}-{mix} (AUC={auc_:.3f})"
+        #    plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
+        #? 
         
-        for mix, shifted_df in shifted_dict.items():
-            X_test = shifted_df.drop(columns=[target])
-            y_test = shifted_df[target]
+        # Evaluate on shifted sets
+        test_files = sorted([f for f in os.listdir(folder) if f.startswith("mix_")])
+        
+        colors = get_color_gradient(color, len(test_files))
+        
+        
+        for test_file, color in zip(test_files, colors):
+            df_test = pd.read_csv(os.path.join(folder, test_file))
+            X_test = df_test.drop(columns=[target])
+            y_test = df_test[target]
             
             y_pred = model.predict(X_test)
             y_pred_proba = pred_proba_1d(model, X_test)
@@ -71,14 +103,14 @@ def evaluate_models_on_shifts(
             f1_ = f1_score(y_test, y_pred)
             auc_ = roc_auc_score(y_test, y_pred_proba)
             
-            print(f"=== {name} on {mix} ===")
+            print(f"=== {name} on {test_file} ===")
             print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
             print(classification_report(y_test, y_pred))
             print("---------------------------------------------------")
             
             # ROC curve
             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-            label_str = f"{name}-{mix} (AUC={auc_:.3f})"
+            label_str = f"{name}-{test_file} (AUC={auc_:.3f})"
             plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
 
         # one plot per model
