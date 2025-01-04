@@ -8,11 +8,51 @@ from src.utils import pred_proba_1d, get_color_gradient
 from src.robust_training.adversarial import AdversarialTrainer
 
 # TODO: search for the best hyperparameters for the models
+class ModelEvaluator:
+    
+    def __init__(self, models, X_train, y_train, X_test, y_test):
+        self.models = models
+        self.X_train = X_train
+        self.y_train = y_train
+        self.X_test = X_test
+        self.y_test = y_test
+        self.y_pred = {}
+        self.y_pred_proba = {}
+        self.metrics = {} # {name : {acc :, f1:, auc:}}
+        
+    def train_models(self):
+        for info in self.models.values():
+            print(f"Training {info['class'].__name__}...")
+            model = info["class"](**info["params"])
+            model.fit(self.X_train, self.y_train)
+            info["model"] = model
+            
+    def evaluate_models(self, show_metrics = False):
+        for name, info in self.models.items():
+            self.y_pred[name] = info["model"].predict(self.X_test)
+            self.y_pred_proba[name] = pred_proba_1d(info["model"], self.X_test)
+            
+            self.metric["model"] = {"acc" : accuracy_score(self.y_test, self.y_pred[name])}
+            self.metric["model"] = {"f1" : f1_score(self.y_test, self.y_pred[name])}
+            self.metric["model"] = {"auc" : roc_auc_score(self.y_test, self.y_pred_proba[name])}
+            
+            if show_metrics: print(f"=== {name} ===")
+            if show_metrics: print(f"Accuracy: {self.acc:.3f}, F1: {self.f1_:.3f}, AUC: {self.auc_:.3f}")
+            if show_metrics: print(classification_report(self.y_test, self.y_pred[name], zero_division=1))
+            if show_metrics: print("---------------------------------------------------")
+            
+            # ROC curve
+            #fpr, tpr, thr = roc_curve(self.y_test, self.y_pred_proba[name])
+            #plt.plot(fpr, tpr, label=f"{name} (AUC={self.auc_:.3f})")
+            
+    
+    
+#? -------------------------------------------------------------------------------------------------------
 
 def evaluate_models_on_shifts(
     models,
     #? old
-    folder: str = "data",
+    #folder: str = "data",
     #? new
     df_dict: dict = None,
     original_file: float = 0.0,
@@ -52,49 +92,21 @@ def evaluate_models_on_shifts(
         plt.figure(figsize=fig_size)
         color = color_map.get(name, "green")    # fallback color
         
-        #? new
-        #shifted_dict = df_dict.copy()
+        shifted_dict = df_dict.copy()
         #
-        ## Pop the original dataset from the copied dictionary
-        #df_orig = shifted_dict.pop(original_file, None)
+        # Pop the original dataset from the copied dictionary
+        df_orig = shifted_dict.pop(original_file, None)
         #
-        #if df_orig is None:
-        #    raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
-        #
-        #shifted_dict = dict(sorted(shifted_dict.items()))
-        #
-        #for mix, shifted_df in shifted_dict.items():
-        #    X_test = shifted_df.drop(columns=[target])
-        #    y_test = shifted_df[target]
-        #    
-        #    y_pred = model.predict(X_test)
-        #    y_pred_proba = pred_proba_1d(model, X_test)
-        #    
-        #    acc = accuracy_score(y_test, y_pred)
-        #    f1_ = f1_score(y_test, y_pred)
-        #    auc_ = roc_auc_score(y_test, y_pred_proba)
-        #    
-        #    print(f"=== {name} on {mix} ===")
-        #    print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
-        #    print(classification_report(y_test, y_pred))
-        #    print("---------------------------------------------------")
-        #    
-        #    # ROC curve
-        #    fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-        #    label_str = f"{name}-{mix} (AUC={auc_:.3f})"
-        #    plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
-        #? 
+        if df_orig is None:
+            raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
         
-        # Evaluate on shifted sets
-        test_files = sorted([f for f in os.listdir(folder) if f.startswith("mix_")])
+        shifted_dict = dict(sorted(shifted_dict.items()))
         
-        colors = get_color_gradient(color, len(test_files))
+        colors = get_color_gradient(color, len(shifted_dict.values()))
         
-        
-        for test_file, color in zip(test_files, colors):
-            df_test = pd.read_csv(os.path.join(folder, test_file))
-            X_test = df_test.drop(columns=[target])
-            y_test = df_test[target]
+        for (mix, shifted_df), color in zip(shifted_dict.items(), colors):
+            X_test = shifted_df.drop(columns=[target])
+            y_test = shifted_df[target]
             
             y_pred = model.predict(X_test)
             y_pred_proba = pred_proba_1d(model, X_test)
@@ -103,22 +115,22 @@ def evaluate_models_on_shifts(
             f1_ = f1_score(y_test, y_pred)
             auc_ = roc_auc_score(y_test, y_pred_proba)
             
-            print(f"=== {name} on {test_file} ===")
+            print(f"=== {name} on {mix} ===")
             print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
-            print(classification_report(y_test, y_pred))
+            print(classification_report(y_test, y_pred, zero_division=1))
             print("---------------------------------------------------")
             
             # ROC curve
             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-            label_str = f"{name}-{test_file} (AUC={auc_:.3f})"
+            label_str = f"{name}-{mix} (AUC={auc_:.3f})"
             plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
-
+            
         # one plot per model
         plt.plot([0,1],[0,1],'k--')
         plt.xlim([0,1])
         plt.ylim([0,1.05])
         plt.xlabel("False Positive Rate")
-        plt.ylabel("True Positive Rate")
+        plt.ylabel("True Positishifted_dfve Rate")
         plt.title("ROC Curves on Shifted Test Sets")
         plt.legend()
         plt.grid(True, alpha=0.3)

@@ -1,1 +1,38 @@
-*__pycache__/
+# Cartelle di cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Checkpoints dei notebook
+.ipynb_checkpoints/
+
+# File temporanei e backup
+*.bak
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Ambiente virtuale Python
+.env/
+.venv/
+env/
+venv/
+
+# File di log
+*.log
+
+# File di configurazione specifici degli IDE
+.idea/
+.vscode/
+*.iml
+
+# File di output generati da Jupyter
+*.nbconvert.ipynb
+*.html
+*.out
+
+# File di configurazione di Jupyter
+jupyter_notebook_config.py
+
+data/
