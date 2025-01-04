@@ -1,9 +1,9 @@
-poetry-dynamic-versioning
-pygam
 pandas
-matplotlib
-scikit-learn
 numpy
+scikit-learn
+pygam
+matplotlib
+seaborn
 xgboost
 scipy
-seaborn
+poetry-dynamic-versioning

@@ -7,7 +7,6 @@ from src.robust_training import adversarial
 from src.utils import pred_proba_1d, get_color_gradient
 from src.robust_training.adversarial import AdversarialTrainer
 
-# TODO: search for the best hyperparameters for the models
 class ModelEvaluator:
     
     def __init__(self, models, X_train, y_train, X_test, y_test):
@@ -32,27 +31,27 @@ class ModelEvaluator:
             self.y_pred[name] = info["model"].predict(self.X_test)
             self.y_pred_proba[name] = pred_proba_1d(info["model"], self.X_test)
             
-            self.metric["model"] = {"acc" : accuracy_score(self.y_test, self.y_pred[name])}
-            self.metric["model"] = {"f1" : f1_score(self.y_test, self.y_pred[name])}
-            self.metric["model"] = {"auc" : roc_auc_score(self.y_test, self.y_pred_proba[name])}
+            acc = accuracy_score(self.y_test, self.y_pred[name])
+            f1 = f1_score(self.y_test, self.y_pred[name])
+            auc = roc_auc_score(self.y_test, self.y_pred_proba[name])
             
             if show_metrics: print(f"=== {name} ===")
-            if show_metrics: print(f"Accuracy: {self.acc:.3f}, F1: {self.f1_:.3f}, AUC: {self.auc_:.3f}")
+            if show_metrics: print(f"Accuracy: {acc:.3f}, F1: {f1:.3f}, AUC: {auc:.3f}")
             if show_metrics: print(classification_report(self.y_test, self.y_pred[name], zero_division=1))
             if show_metrics: print("---------------------------------------------------")
             
-            # ROC curve
-            #fpr, tpr, thr = roc_curve(self.y_test, self.y_pred_proba[name])
-            #plt.plot(fpr, tpr, label=f"{name} (AUC={self.auc_:.3f})")
+            self.metrics[name] = {
+                "acc" : acc,
+                "f1" : f1,
+                "auc" : auc
+            }
             
-    
+        return self.metrics            
     
 #? -------------------------------------------------------------------------------------------------------
 
 def evaluate_models_on_shifts(
     models,
-    #? old
-    #folder: str = "data",
     #? new
     df_dict: dict = None,
     original_file: float = 0.0,
@@ -152,7 +151,7 @@ def compare_adversarial_training(
       3) Compare performance on each shifted dataset.
     """
     # 1) Load original => train data
-    df_orig = pd.read_csv(os.path.join(folder, "train.csv"))
+    df_orig = pd.read_csv(os.path.join(folder, "mix_0.0.csv"))
     X_train = df_orig.drop(target, axis=1)
     y_train = df_orig[target]
     
@@ -182,7 +181,7 @@ def compare_adversarial_training(
     adv_model = adv_trainer.model
     
     # 2) Evaluate on shifted sets
-    test_files = [f for f in os.listdir(folder) if f.startswith("mix_")]
+    test_files = sorted([f for f in os.listdir(folder) if f.startswith("mix_")])
     
     max_len = 60
     model_name = model.__class__.__name__
@@ -192,7 +191,8 @@ def compare_adversarial_training(
     print(f" ║{' '*len_space}{model_name}{' '*len_space}{corrector}║")
     print(f" ║{' '*((max_len - 38)//2)}Normal vs. Adversarially Trained Model{' '*((max_len - 38)//2)}║")
     print(f" ╠{'═'*(max_len)}╣")
-    for test_file in sorted(test_files):
+    
+    for test_file in test_files:
         df_test = pd.read_csv(os.path.join(folder, test_file))
         X_test = df_test[X_train.columns]
         y_test = df_test[target]
