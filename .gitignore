@@ -35,4 +35,3 @@ venv/
 # File di configurazione di Jupyter
 jupyter_notebook_config.py
 
-data/

@@ -9,132 +9,205 @@ from src.robust_training.adversarial import AdversarialTrainer
 
 class ModelEvaluator:
     
-    def __init__(self, models, X_train, y_train, X_test, y_test):
-        self.models = models
-        self.X_train = X_train
-        self.y_train = y_train
-        self.X_test = X_test
-        self.y_test = y_test
-        self.y_pred = {}
-        self.y_pred_proba = {}
-        self.metrics = {} # {name : {acc :, f1:, auc:}}
+    def __init__(self, models, test_datasets):
+        """
+        Initialize the ModelEvaluator with models and test datasets.
         
-    def train_models(self):
-        for info in self.models.values():
-            print(f"Training {info['class'].__name__}...")
-            model = info["class"](**info["params"])
-            model.fit(self.X_train, self.y_train)
-            info["model"] = model
-            
-    def evaluate_models(self, show_metrics = False):
-        for name, info in self.models.items():
-            self.y_pred[name] = info["model"].predict(self.X_test)
-            self.y_pred_proba[name] = pred_proba_1d(info["model"], self.X_test)
-            
-            acc = accuracy_score(self.y_test, self.y_pred[name])
-            f1 = f1_score(self.y_test, self.y_pred[name])
-            auc = roc_auc_score(self.y_test, self.y_pred_proba[name])
-            
-            if show_metrics: print(f"=== {name} ===")
-            if show_metrics: print(f"Accuracy: {acc:.3f}, F1: {f1:.3f}, AUC: {auc:.3f}")
-            if show_metrics: print(classification_report(self.y_test, self.y_pred[name], zero_division=1))
-            if show_metrics: print("---------------------------------------------------")
-            
-            self.metrics[name] = {
-                "acc" : acc,
-                "f1" : f1,
-                "auc" : auc
-            }
-            
-        return self.metrics            
+        Parameters:
+        - models: dict
+            A dictionary with model names as keys and models as values.
+        - test_datasets: list of tuples
+            A list of tuples where each tuple contains (dataset_name, X_test, y_test).
+        """
+        self.models = models
+        self.test_datasets = test_datasets
+        self.results = {}  # {model_name: {dataset_index: {metrics}}}
     
+    def evaluate_models(self, show_metrics=False):
+        """
+        Evaluate all models on all test datasets and store the metrics.
+        
+        Parameters:
+        - show_metrics: bool
+            If True, print the metrics for each model and dataset.
+        """
+        for model_name, model in self.models.items():
+            self.results[model_name] = {}
+            for i, (dataset_name,X_test, y_test) in enumerate(self.test_datasets):
+                y_pred = model.predict(X_test)
+                y_pred_proba = pred_proba_1d(model, X_test)
+                
+                acc = accuracy_score(y_test, y_pred)
+                f1 = f1_score(y_test, y_pred)
+                auc = roc_auc_score(y_test, y_pred_proba)
+                
+                self.results[model_name][i] = {
+                    "dataset_name": dataset_name,
+                    "accuracy": acc,
+                    "f1": f1,
+                    "auc": auc,
+                    "y_test": y_test,
+                    "y_pred_proba": y_pred_proba
+                }
+                
+                if show_metrics:
+                    print(f"{model_name}:\tAccuracy: {acc:.3f}, F1: {f1:.3f}, AUC: {auc:.3f}")
+                    print("---------------------------------------------------")
+    
+    def plot_roc_curves(self):
+        """
+        Plot ROC curves for each model on all test datasets.
+        """
+        for model_name, datasets in self.results.items():
+            plt.figure(figsize=(10, 8))
+            for i, metrics in datasets.items():
+                fpr, tpr, _ = roc_curve(metrics["y_test"], metrics["y_pred_proba"])
+                plt.plot(fpr, tpr, label=f'Dataset {metrics["dataset_name"]} (AUC = {metrics["auc"]:.3f})')
+            
+            plt.plot([0, 1], [0, 1], 'k--', lw=2, label="Random Guess")
+            plt.title(f"ROC Curves for {model_name}", fontsize=16)
+            plt.xlabel("False Positive Rate", fontsize=14)
+            plt.ylabel("True Positive Rate", fontsize=14)
+            plt.legend(loc="lower right", fontsize=12)
+            plt.grid(alpha=0.5)
+            plt.show()
+    
+    def plot_roc_curves_per_dataset(self):
+        """
+        Plot ROC curves for each test dataset with all models.
+        """
+        n_datasets = len(self.test_datasets)
+        n_cols = 2
+        n_rows = (n_datasets + n_cols - 1) // n_cols
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 5 * n_rows))
+        axes = axes.flatten()
+        
+        for i, (dataset_name, X_test, y_test) in enumerate(self.test_datasets):
+            ax = axes[i]
+            for model_name, datasets in self.results.items():
+                metrics = datasets[i]
+                fpr, tpr, _ = roc_curve(metrics["y_test"], metrics["y_pred_proba"])
+                ax.plot(fpr, tpr, label=f'{model_name} (AUC = {metrics["auc"]:.3f})')
+            
+            ax.plot([0, 1], [0, 1], 'k--', lw=2, label="Random Guess")
+            ax.set_title(f"ROC Curves for Test Dataset {dataset_name}", fontsize=12)
+            ax.set_xlabel("False Positive Rate", fontsize=10)
+            ax.set_ylabel("True Positive Rate", fontsize=10)
+            ax.legend(loc="lower right", fontsize=8)
+            ax.grid(alpha=0.5)
+        
+        # Remove empty subplots
+        for j in range(i + 1, len(axes)):
+            fig.delaxes(axes[j])
+        
+        plt.tight_layout()
+        plt.show()
+
+    def plot_accuracy(self):
+        """
+        Plot accuracy for each model as a function of the test sets.
+        """
+        plt.figure(figsize=(12, 6))
+        for model_name, datasets in self.results.items():
+            dataset_names = [metrics["dataset_name"] for metrics in datasets.values()]
+            accuracies = [metrics["accuracy"] for metrics in datasets.values()]
+            plt.plot(dataset_names, accuracies, marker='o', label=model_name)
+        
+        plt.title("Accuracy for Each Model on Different Test Sets", fontsize=16)
+        plt.xlabel("Test Set", fontsize=14)
+        plt.ylabel("Accuracy", fontsize=14)
+        plt.legend(loc="best", fontsize=12)
+        plt.grid(alpha=0.5)
+        plt.tight_layout()
+        plt.show()
+
 #? -------------------------------------------------------------------------------------------------------
 
-def evaluate_models_on_shifts(
-    models,
-    #? new
-    df_dict: dict = None,
-    original_file: float = 0.0,
-    #?
-    target: str = 'Y',
-    fig_size=(8, 8),
-    color_map=None
-) -> None:
+# def evaluate_models_on_shifts(
+#     models,
+#     #? new
+#     df_dict: dict = None,
+#     original_file: float = 0.0,
+#     #?
+#     target: str = 'Y',
+#     fig_size=(8, 8),
+#     color_map=None
+# ) -> None:
      
-    """
-    1) Train models on 'train.csv'.
-    2) Evaluate each model on all 'mix_*' CSVs in the folder.
-    3) Print metrics (Accuracy, F1, AUC) and plot ROC curves.
+#     """
+#     1) Train models on 'train.csv'.
+#     2) Evaluate each model on all 'mix_*' CSVs in the folder.
+#     3) Print metrics (Accuracy, F1, AUC) and plot ROC curves.
 
-    Parameters
-    ----------
-    models : dict
-        Dictionary of models to train and evaluate.
-    folder : str, optional
-        Folder containing 'train.csv' and 'mix_*.csv'.
-    target : str, optional
-        Target column name.
-    fig_size : tuple, optional
-        Figure size for ROC plot.
-    color_map : dict, optional
-        Color mapping for models.
-    """
+#     Parameters
+#     ----------
+#     models : dict
+#         Dictionary of models to train and evaluate.
+#     folder : str, optional
+#         Folder containing 'train.csv' and 'mix_*.csv'.
+#     target : str, optional
+#         Target column name.
+#     fig_size : tuple, optional
+#         Figure size for ROC plot.
+#     color_map : dict, optional
+#         Color mapping for models.
+#     """
     
-    if not color_map:
-        color_map = {
-            "DecisionTreeClassifier": "blue", 
-            "GradientBoostingClassifier": "red",
-            "LogisticGAM" : "orange"
-        }
+#     if not color_map:
+#         color_map = {
+#             "DecisionTreeClassifier": "blue", 
+#             "GradientBoostingClassifier": "red",
+#             "LogisticGAM" : "orange"
+#         }
     
-    for name, model in models.items():
-        plt.figure(figsize=fig_size)
-        color = color_map.get(name, "green")    # fallback color
+#     for name, model in models.items():
+#         plt.figure(figsize=fig_size)
+#         color = color_map.get(name, "green")    # fallback color
         
-        shifted_dict = df_dict.copy()
-        #
-        # Pop the original dataset from the copied dictionary
-        df_orig = shifted_dict.pop(original_file, None)
-        #
-        if df_orig is None:
-            raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
+#         shifted_dict = df_dict.copy()
+#         #
+#         # Pop the original dataset from the copied dictionary
+#         df_orig = shifted_dict.pop(original_file, None)
+#         #
+#         if df_orig is None:
+#             raise ValueError(f"Original dataset with key {original_file} not found in df_dict")
         
-        shifted_dict = dict(sorted(shifted_dict.items()))
+#         shifted_dict = dict(sorted(shifted_dict.items()))
         
-        colors = get_color_gradient(color, len(shifted_dict.values()))
+#         colors = get_color_gradient(color, len(shifted_dict.values()))
         
-        for (mix, shifted_df), color in zip(shifted_dict.items(), colors):
-            X_test = shifted_df.drop(columns=[target])
-            y_test = shifted_df[target]
+#         for (mix, shifted_df), color in zip(shifted_dict.items(), colors):
+#             X_test = shifted_df.drop(columns=[target])
+#             y_test = shifted_df[target]
             
-            y_pred = model.predict(X_test)
-            y_pred_proba = pred_proba_1d(model, X_test)
+#             y_pred = model.predict(X_test)
+#             y_pred_proba = pred_proba_1d(model, X_test)
             
-            acc = accuracy_score(y_test, y_pred)
-            f1_ = f1_score(y_test, y_pred)
-            auc_ = roc_auc_score(y_test, y_pred_proba)
+#             acc = accuracy_score(y_test, y_pred)
+#             f1_ = f1_score(y_test, y_pred)
+#             auc_ = roc_auc_score(y_test, y_pred_proba)
             
-            print(f"=== {name} on {mix} ===")
-            print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
-            print(classification_report(y_test, y_pred, zero_division=1))
-            print("---------------------------------------------------")
+#             print(f"=== {name} on {mix} ===")
+#             print(f"Accuracy: {acc:.3f}, F1: {f1_:.3f}, AUC: {auc_:.3f}")
+#             print(classification_report(y_test, y_pred, zero_division=1))
+#             print("---------------------------------------------------")
             
-            # ROC curve
-            fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
-            label_str = f"{name}-{mix} (AUC={auc_:.3f})"
-            plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
+#             # ROC curve
+#             fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+#             label_str = f"{name}-{mix} (AUC={auc_:.3f})"
+#             plt.plot(fpr, tpr, label=label_str, color=color, alpha=0.3)
             
-        # one plot per model
-        plt.plot([0,1],[0,1],'k--')
-        plt.xlim([0,1])
-        plt.ylim([0,1.05])
-        plt.xlabel("False Positive Rate")
-        plt.ylabel("True Positishifted_dfve Rate")
-        plt.title("ROC Curves on Shifted Test Sets")
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.show()
-        plt.close()
+#         # one plot per model
+#         plt.plot([0,1],[0,1],'k--')
+#         plt.xlim([0,1])
+#         plt.ylim([0,1.05])
+#         plt.xlabel("False Positive Rate")
+#         plt.ylabel("True Positishifted_dfve Rate")
+#         plt.title("ROC Curves on Shifted Test Sets")
+#         plt.legend()
+#         plt.grid(True, alpha=0.3)
+#         plt.show()
+#         plt.close()
         
 
 def compare_adversarial_training(
