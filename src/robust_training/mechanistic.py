@@ -192,7 +192,7 @@ class MechanisticTrainer(RobustTrainer):
                 # if grad_est is negative => decreasing feature => higher probability => shift down
                 for feat_idx in top_feats_idx:
                     g = gradients[feat_idx]
-                    direction_sign = 1 if g < 0 else -1
+                    direction_sign = 1 if g > 0 else -1
                     x_i[feat_idx] += direction_sign * self.base_shift_factor
 
             # Add random Gaussian noise to the final x_i
