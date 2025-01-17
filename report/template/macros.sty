@@ -1,0 +1,149 @@
+\ProvidesPackage{../template/macros}
+
+% Defines curly quotes around text
+\newcommand{\curlyquotes}[1]{``#1''}
+
+% Title page information commands
+\newcommand{\institute}[1]{\def\@institute{#1}}
+\newcommand{\faculty}[1]{%
+    \def\@faculty{Faculties of #1\unskip}%
+}
+\newcommand{\department}[1]{\def\@department{Department of #1}}
+\newcommand{\lecturer}[1]{\def\@lecturer{#1}}
+\newcommand{\githublink}[1]{\def\@githublink{#1}}
+\newcommand{\email}[1]{\def\@email{#1}}
+\newcommand{\logo}[1]{\includegraphics[width=0.25\textwidth]{#1}}
+\newcommand{\authors}[1]{\def\@authors{#1}}
+\newcommand{\nologo}{\def\@nologo{1}}
+
+% Creates text with shadow effect
+\newcommand{\shadowtext}[1]{
+    {\fontsize{40pt}{50pt}\selectfont
+        \begin{tikzpicture}[baseline=(current bounding box.base)]
+            \node[inner sep=0pt, align=center, text width=\textwidth] 
+                at (-0.08em,-0.06em) {\color{gray!50}#1};
+            \node[inner sep=0pt, align=center, text width=\textwidth] 
+                at (0,0) {#1};
+        \end{tikzpicture}
+    }%
+}
+
+% License information commands
+\newcommand{\license}[1]{\def\@license{#1}}
+\newcommand{\CCBYNCSA}{This document is licensed under a \href{https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en}{Creative Commons Attribution-NonCommercial-ShareAlike} (CC BY-NC-SA) license. You may share and adapt this material, provided you give appropriate credit, do not use it for commercial purposes, and distribute your contributions under the same license.}
+
+% Custom title page layout
+\renewcommand{\maketitle}{
+    \NoBgThispage
+    \begin{titlepage}
+        \centering
+        
+        % Logo - shown by default unless \nologo is used
+        \ifx\@nologo\undefined
+            \logo{../template/logo.jpg}\\[0.5cm]
+        \fi
+        
+        % Institution information - all optional
+        \ifx\@institute\undefined\else
+            {\Large \text{\@institute}}\\
+            \rule{0.8\textwidth}{0.2mm}\\[0.4cm]
+        \fi
+        
+        \ifx\@faculty\undefined\else
+            {\Large \begin{tabular}{c}\@faculty\end{tabular}}\\[0.4cm]
+        \fi
+        
+        \ifx\@department\undefined\else
+            {\Large \text{\@department}}\\[1.5cm]
+        \fi
+        
+        % Title - always required
+        \shadowtext{\@title}\\[1cm]
+        
+        % Lecturer information - optional
+        \ifx\@lecturer\undefined\else
+            {\Large \textit{Lecturer:}}\\[0.1cm]
+            {\Large \bfseries \@lecturer}\\
+        \fi
+        
+        % Vertical spacing
+        \vfill
+        
+        % Author information - at least one required
+        \ifx\@authors\undefined
+            \ifx\@author\undefined\else
+                {\Large \textit{Author:}}\\[0.1cm]
+                {\Large \bfseries \@author}\\[0.5cm]
+            \fi
+        \else
+            {\Large \textit{Authors:}}\\[0.1cm]
+            {\Large \bfseries \@authors}\\[0.5cm]
+        \fi
+        
+        % Date - optional
+        \ifx\@date\undefined\else
+            {\large \@date}\\[0.5cm]
+        \fi
+        
+        % License - optional
+        \ifx\@license\undefined\else
+            {\small \@license}\\
+        \fi
+        
+        % Contact information - optional
+        \ifx\@githublink\undefined
+            \ifx\@email\undefined\else
+                \rule{\textwidth}{0.2mm}\\
+                {\small \href{mailto:\@email}{\faEnvelope\space\plaintt{\@email}}}
+            \fi
+        \else
+            \rule{\textwidth}{0.2mm}\\
+            {\small
+                \href{https://github.com/\@githublink}{\faGithub\space\plaintt{github.com/\@githublink}}
+                \ifx\@email\undefined\else
+                    \hfill
+                    \href{mailto:\@email}{\faEnvelope\space\plaintt{\@email}}
+                \fi
+            }
+        \fi
+    \end{titlepage}
+
+    \pagenumbering{roman}
+}
+
+% Table of contents with custom formatting
+\newcommand{\toc}{
+    {
+        \titleformat{\chapter}[display]
+          {\normalfont\bfseries\Huge}     % Text style
+          {}                              % No label (number)
+          {0pt}
+          {%
+            \fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n} % Title font
+          }
+        
+        \titlespacing*{\chapter}{0pt}{*3}{*2} % ToC spacing
+
+        \hypersetup{linkcolor=black}
+        \tableofcontents
+        \newpage
+        \pagenumbering{arabic}
+        \setcounter{page}{1}
+    }
+}
+
+% Automatically include all chapter files (ch1.tex, ch2.tex, etc.)
+\makeatletter
+\newcommand{\includechapters}{%
+  \count@=1
+  \@whilenum\count@<50\do{%
+    \edef\filename{chapters/ch\number\count@.tex}%
+    \IfFileExists{\filename}{%
+      \include{\filename}%
+    }{}%
+    \advance\count@ by 1
+  }%
+}
+\makeatother
+
+\endinput

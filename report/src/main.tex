@@ -1,0 +1,51 @@
+\documentclass[a4paper,12pt]{report}
+
+%%%%%%%%%%%%
+% packages %
+%%%%%%%%%%%%
+
+\usepackage{../template/pkgs}
+\usepackage{../template/styles}
+\usepackage{../template/frames}
+\usepackage{../template/macros}
+
+%%%%%%%%%%%%%%
+% Title Page %
+%%%%%%%%%%%%%%
+
+\institute{UniTs - University of Trieste}
+%\faculty{Data Science and Artificial Intelligence,\\Scientific and Data Intensive Computing}
+%\department{mathematics informatics and geosciences}
+\title{Distribution Shift\\Report}
+\authors{Andrea Spinelli, Giacomo Amerio,\\Giovanni Lucarelli, Tommaso Piscitelli}
+\date{\today}
+\githublink{giovanni-lucarelli/distribution-shift}
+%\license{\CCBYNCSA}
+
+%%%%%%%%%%%%
+% document %
+%%%%%%%%%%%%
+
+\addbibresource{./references.bib}
+
+\begin{document}
+
+% Pagina di copertina
+\maketitle
+
+% Abstract
+\include{chapters/abstract}
+
+% Indice
+\toc
+
+% Chapters
+\includechapters
+
+% Bibliography
+\printbibliography
+
+\end{document}
+
+
+

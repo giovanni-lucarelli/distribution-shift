@@ -1,0 +1,57 @@
+\ProvidesPackage{../template/frames}
+
+% Require needed packages
+\tcbuselibrary{skins,listings,breakable}
+
+%? ----------------- code blocks style -----------------
+% Color definitions
+\definecolor{code-back}{RGB}{245,245,245}
+\definecolor{code-border}{RGB}{200,200,200}
+
+% Base code style
+\lstdefinestyle{codebox}{
+    language=Python,
+    basicstyle=\ttfamily\small\color{black!60},
+    keywordstyle=\color{black!80}\bfseries,%{blue!70!black}
+    commentstyle=\color{black!60}\itshape,%{green!50!black},
+    morecomment=[l]{\#},
+    stringstyle=\color{black!70},%{red!60!black},
+    numbers=left,
+    xleftmargin=3mm,
+    numberstyle=\tiny\color{gray},
+    showstringspaces=false,
+    breaklines=true,
+    tabsize=4,
+    escapeinside={(*@}{@*)},
+    identifierstyle=\color{black!90}%[RGB]{80,80,235},
+}
+
+% New listings environment with tcolorbox
+\newtcblisting{codelisting}[2][]{
+    opacityback=1,
+    colback=code-back,
+    coltitle=black,
+    fonttitle=\bfseries,
+    rounded corners,
+    boxrule=0.8pt,
+    frame style={color=code-border},
+    enhanced,
+    halign=left,
+    left=2mm,
+    attach boxed title to top left={
+        yshift=-2mm,
+        xshift=5mm
+    },
+    boxed title style={
+        colback=code-back,
+        colframe=code-border,
+        rounded corners,
+        arc=4pt,
+        boxrule=0.8pt
+    },
+    title=#2,
+    listing only,
+    listing options={style=codebox,#1}
+}
+
+\endinput
