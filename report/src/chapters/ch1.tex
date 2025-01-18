@@ -15,9 +15,9 @@ Therefore, dataset shift represents a more specific case: it deals with relating
 
 Given this issue, it is crucial to develop an understanding of the suitability of particular models under such changing conditions, and it is necessary to consider whether a different predictive model should be employed.
 
-Among the various forms of dataset shift, covariate shift, studied and described by Shimodaira in 2000, is one of the most extensively researched forms. It encompasses situations where the distribution of the covariates, $𝑃(X)$
+Among the various forms of dataset shift, covariate shift, studied and described by Shimodaira in 2000, is one of the most extensively researched forms. It encompasses situations where the distribution of the covariates, $P(X)$
 
-changes, while the conditional relationship $P(Y \mid X)$, representing the relationship between the covariates $X$ and the target $Y$, remains unchanged. In this case, the typical values of the covariates observed during testing differ from those observed during training.
+changes, while the conditional relationship $P(Y|X)$, representing the relationship between the covariates $X$ and the target $Y$, remains unchanged. In this case, the typical values of the covariates observed during testing differ from those observed during training.
 
 
 
@@ -89,16 +89,16 @@ This means that the availability and quantity of training data can be limited, a
 Figure \ref{covariate-shift} shows an example where the distribution of training data differs from that of test data, creating a division between the two datasets.  
 
 \vspace{0.5cm}  
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{../src/assets/image.png} 
+    \includegraphics[width=0.8\textwidth]{../src/assets/immagine.png} 
     \caption{Example of covariate shift.}
     \label{covariate-shift}
 \end{figure}
 
-This will have a negative impact on the accuracy of the model, as the algorithms will have been trained to map input data to output data and may fail to recognize the features of inputs from a different distribution, as shown in Figure \cref{inaccurate-model}.  
+This will have a negative impact on the accuracy of the model, as the algorithms will have been trained to map input data to output data and may fail to recognize the features of inputs from a different distribution, as shown in Figure \cref{inaccurate-model}.
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{../src/assets/covariate_shift.png} 
     \caption{Example of inaccurate model.}
@@ -141,24 +141,24 @@ However, when deployed with real-time data, changes in the input distribution ca
 
 In the case of facial recognition, the training data might not include subjects from specific ethnicities or age groups. When the model is deployed in a real-world environment, subjects that do not align with the training data may exhibit an unrecognizable feature distribution.
 
-Another example could involve a model designed to distinguish between cats and dogs. Our training data might consist of images like those shown in Figure \cref{cani-gatti-tr}, present in a specific dataset.
+Another example could involve a model designed to distinguish between cats and dogs. Our training data might consist of images like those shown in Figure \cref{fig:cani-gatti-tr}, present in a specific dataset.
 
 \vspace{0.5cm}
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{../src/assets/cat-dog-train.png} 
     \caption{Training data for distinguishing cats and dogs.}
-    \label{cani-gatti-tr}
+    \label{fig:cani-gatti-tr}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{../src/assets/cat-dog-test.png} 
     \caption{Test data for distinguishing cats and dogs.}
-    \label{cani-gatti-ts}
+    \label{fig:cani-gatti-ts}
 \end{figure}
 
-At test time, we are asked to classify the images in Figure \cref{cani-gatti-ts}. Once deployed, the model will not accurately distinguish between cats and dogs because the feature distribution will differ.
+At test time, we are asked to classify the images in Figure \cref{fig:cani-gatti-ts}. Once deployed, the model will not accurately distinguish between cats and dogs because the feature distribution will differ.
 
 
 \subsubsection{Covariate shift in speech recognition}
