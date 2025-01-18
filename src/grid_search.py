@@ -1,40 +1,88 @@
 from sklearn.model_selection import GridSearchCV
-import pandas as pd
+#import pandas as pd
 from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import roc_auc_score
 
 best_params = {
     "LogisticGAM" : {
-        "max_iter": 1000,
-        "n_splines": 10,
-        "lam": 0.6
+        #"max_iter": 1000,
+        #"n_splines": 10,
+        #"lam": 0.6
     },
     "DecisionTreeClassifier" : {
         "criterion": "entropy",
-        "max_depth": 8,  #8, 10
-        "min_samples_leaf": 5, #10, 12
+        "max_depth": 9,#10,  #8, 10
+        "min_samples_leaf": 10,#12, #10, 12
         "splitter": "random"
     },
     "GradientBoostingClassifier" : {
-        "learning_rate": 0.01,  #0.01, 0.025
-        "max_depth": 4, #4, 3
+        "learning_rate": 0.025,
+        "max_depth": 3,
         "n_estimators": 125, #150, 125
-        "subsample": 0.6    #0.5, 0.4
+        "subsample": 0.4    #0.5, 0.4
     },
     "RandomForestClassifier" : {
-        "max_depth": 7,  #7,7
-        "min_samples_leaf": 1,  #2, 2
-        "min_samples_split": 10, #10, 10
-        "n_estimators": 100, #50, 50
+        "n_estimators": 125,#50, #50, 50
+        "criterion": "gini",
+        "max_depth": 5,  #7,7
+        "min_samples_leaf": 1,#2,  #2, 2
+        "min_samples_split": 5,#10, #10, 10
+        "max_samples": 0.8,
         "random_state": 0
     },
     "XGBoost" : {
-        "max_depth": 5,
-        "n_estimators": 100
+        #"max_depth": 5,
+        #"n_estimators": 100
     },
 }
 
-def grid_search_cv(estimator, param_grid, X_train, y_train, cv=5, scoring="roc_auc", n_jobs=4, verbose=1):
+# #? overfitting params
+# best_params = {
+#     "LogisticGAM" : {
+#         "max_iter": 1000,
+#         "n_splines": 10,
+#         "lam": 0.6
+#     },
+#     "DecisionTreeClassifier" : {
+#         'criterion': 'gini',
+#         'max_depth': 14,
+#         'min_samples_leaf': 10,
+#         'splitter': 'best'
+#     },
+#     "GradientBoostingClassifier" : {
+#         'learning_rate': 0.025,
+#         'max_depth': 8,
+#         'max_features': None,
+#         'n_estimators': 165,
+#         'subsample': 0.7
+#     },
+#     "RandomForestClassifier" : {
+#         'criterion': 'gini', 
+#         'max_depth': 12, 
+#         'min_samples_leaf': 2, 
+#         'min_samples_split': 10,
+#         'n_estimators': 175,
+#         'random_state': 0
+#     },
+#     "XGBoost" : {
+#         'learning_rate': 0.03,
+#         'max_depth': 0,
+#         'n_estimators': 200,
+#         'subsample': 0.7
+#     },
+# }
+
+#? vanilla params
+# best_params = {
+#     "LogisticGAM" : {},
+#     "DecisionTreeClassifier" : {},
+#     "GradientBoostingClassifier" : {},
+#     "RandomForestClassifier" : {},
+#     "XGBoost" : {},
+# }
+
+
+def grid_search_cv(estimator, param_grid, X_train, y_train, cv=5, scoring="roc_auc", n_jobs=-1, verbose=1):
 
     # Initialize GridSearchCV
     grid_searcher = GridSearchCV(estimator=estimator, param_grid=param_grid, cv=cv, scoring=scoring, n_jobs=n_jobs, verbose=verbose)
@@ -48,11 +96,8 @@ def grid_search_cv(estimator, param_grid, X_train, y_train, cv=5, scoring="roc_a
     
     return best_model
 
-
-
-
 def overfit_models(X_train, y_train, model, param_grid):
-   
+    
     grid = ParameterGrid(param_grid)
     best_score = -1
     best_params = None

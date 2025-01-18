@@ -49,6 +49,7 @@ jupyter_notebook_config.py
 *.cb
 *.cb2
 .*.lb
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -67,6 +68,7 @@ jupyter_notebook_config.py
 *.dvi
 *.xdv
 *-converted-to.*
+
 # these rules might exclude image files for figures etc.
 # *.ps
 # *.eps
@@ -194,7 +196,7 @@ acs-*.bib
 
 # knitr
 *-concordance.tex
-# TODO Uncomment the next line if you use knitr and want to ignore its generated tikz files
+# Uncomment the next line if you use knitr and want to ignore its generated tikz files
 # *.tikz
 *-tikzDictionary
 
@@ -345,6 +347,9 @@ TSWLatexianTemp*
 
 # xwatermark package
 *.xwm
+
+# wsl images identifiers
+*Zone.Identifier
 
 # REVTeX puts footnotes in the bibliography by default, unless the nofootinbib
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.

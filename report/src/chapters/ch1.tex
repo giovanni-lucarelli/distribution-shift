@@ -53,11 +53,13 @@ It occurs when the distribution of input data changes between the training envir
 Mathematically, this case can be defined as follows:  
 	
 	\vspace{0.5cm}  
-	\textbf{Definition:} \textit{Covariate shift} occurs only in problems of the type \(X \to Y\) and is defined as the case where:  
-	\[
+	\textbf{Definition:} \textit{Covariate shift} occurs only in problems of the type $X \to Y$ and is defined as the case where:  
+	
+	$$
 	P_{\text{tra}}(Y \mid X) = P_{\text{tst}}(Y \mid X) \quad \text{and} \quad P_{\text{tra}}(X) \neq P_{\text{tst}}(X)
-	\]
-	where \(P_{\text{tra}}\) and \(P_{\text{tst}}\) represent the probability distributions in the training data and test data, respectively.  
+	$$
+
+	where $P_{\text{tra}}$ and $P_{\text{tst}}$ represent the probability distributions in the training data and test data, respectively.  
 	\vspace{0.5cm}  
 	
 Covariate shift is a phenomenon that can affect a wide range of machine learning models, regardless of the task they are designed to perform.
@@ -72,30 +74,30 @@ This issue is particularly relevant in diverse machine learning applications, in
 		\item Diagnostic and screening tools in healthcare
 	\end{enumerate}
 	
-For example consider a model designed to distinguish between cats and dogs. Our training data might consist of images like those shown in Figure \ref{cani-gatti-tr}, present in a specific dataset.
+For example consider a model designed to distinguish between cats and dogs. Our training data might consist of images like those shown in Figure \ref{fig:cani-gatti-tr}, present in a specific dataset.
 	
 	\vspace{1cm}
-	\begin{figure}[h!]
+	\begin{figure}[H]
 		\centering
-		\includegraphics[width=1\textwidth]{cat-dog-train.png} 
+		\includegraphics[width=1\textwidth]{assets/cat-dog-train.png} 
 		\caption{Training data for distinguishing cats and dogs.}
-		\label{cani-gatti-tr}
+		\label{fig:cani-gatti-tr}
 	\end{figure}
      \vspace{1cm}
      
 
-At test time, we are asked to classify the images in Figure \ref{cani-gatti-ts}. Once deployed, the model will not accurately distinguish between cats and dogs because the feature distribution will differ.
+At test time, we are asked to classify the images in Figure \ref{fig:cani-gatti-ts}. Once deployed, the model will not accurately distinguish between cats and dogs because the feature distribution will differ.
 
 Model may achieve a high degree of accuracy on a labeled training dataset, identifying and classifying the object in an image. 
 
 However, when deployed with real-time data, changes in the input distribution can significantly impact the model's accuracy.
 		
 	\vspace{1cm}
-	\begin{figure}[h!]
+	\begin{figure}[H]
 		\centering
-		\includegraphics[width=1\textwidth]{cat-dog-test.png} 
+		\includegraphics[width=1\textwidth]{assets/cat-dog-test.png} 
 		\caption{Test data for distinguishing cats and dogs.}
-		\label{cani-gatti-ts}
+		\label{fig:cani-gatti-ts}
 	\end{figure}
 	\vspace{1cm}
 	
@@ -117,25 +119,25 @@ However, the same level of oversight cannot be guaranteed in an operational envi
 
 This means that the availability and quantity of training data can be limited, and consequently, the distribution of input data in this subset of training data is unlikely to exactly mirror the characteristics of data in a real-world environment.
 
-Figure \ref{covariate-shift} shows an example of different distribution between training data and test data, creating a division between the two datasets.  
+Figure \ref{fig:covariate-shift} shows an example of different distribution between training data and test data, creating a division between the two datasets.  
 	
 
-	\begin{figure}[h!]
+	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.8\textwidth]{immagine.png} 
+		\includegraphics[width=0.8\textwidth]{assets/immagine.png} 
 		\caption{Example of covariate shift.}
-		\label{covariate-shift}
+		\label{fig:covariate-shift}
 	\end{figure}
 
 	
-This will have a negative impact on the accuracy of the model, as the algorithms will have been trained to map input data to output data and may fail to recognize the features of inputs from a different distribution, as shown in Figure \ref{inaccurate-model}.  
+This will have a negative impact on the accuracy of the model, as the algorithms will have been trained to map input data to output data and may fail to recognize the features of inputs from a different distribution, as shown in Figure \ref{fig:inaccurate-model}.  
 	
 
-	\begin{figure}[h!]
+	\begin{figure}[H]
 		\centering
-		\includegraphics[width=0.5\textwidth]{covariate_shift.png} 
+		\includegraphics[width=0.5\textwidth]{assets/covariate_shift.png} 
 		\caption{Example of inaccurate model.}
-		\label{inaccurate-model}
+		\label{fig:inaccurate-model}
 	\end{figure}  
 
 \vspace{0.5cm}
@@ -147,5 +149,3 @@ The goal is to determine the extent to which the shift affects the model, take m
 Addressing this issue allows models to be readjusted to improve their accuracy. Covariate shift can provide insights into the degree of generalization of the model, which refers to the model's ability to apply learned features from training data to new data.
 
 Low levels of generalization can result from overfitting, where the model is overly aligned with the training data, making it ineffective when encountering new data with a different distribution.  
-	
-	
