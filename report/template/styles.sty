@@ -1,5 +1,8 @@
 \ProvidesPackage{../template/styles}
 
+% command for chapter authors
+\newcommand{\chapterauthor}[1]{\vspace{-1em}\hfill{\small\textcolor{black!60}{[#1]}}}
+
 %? ----------------- Base page layout -----------------
 % Set A4 page margins
 \geometry{
@@ -10,23 +13,21 @@
   right=2.3cm
 }
 
-% Define numbered chapter title format (right-aligned numbers)
+% Define numbered chapter title format with author support
 \titleformat{\chapter}[display]
   {\normalfont\bfseries\vspace{-3em}}
   {\hfill\fontsize{80}{80}\selectfont\textcolor{gray!60}{\usefont{T1}{qbk}{m}{n}\thechapter}}
   {-15pt}
   {\hfill\fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n}}
-  % enable the following line to add line after chapter title
-  %[\vspace{-0.5em}\centering\rule{0.9\textwidth}{0.1mm}]
-  % disable the following line if you enable the previous one
   [\vspace{0.2em}]
 
-% Define unnumbered chapter title format (centered)
+% Define unnumbered chapter title format with author support
 \titleformat{name=\chapter,numberless}[display]
   {\normalfont\bfseries}
   {}
   {0pt}
   {\fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n}}
+  [\vspace{0.2em}]
 
 % Remove extra spacing around chapter titles
 \titlespacing*{\chapter}{-1pt}{*0}{*0}
