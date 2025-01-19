@@ -15,14 +15,14 @@ Since the logistic GAM uses different methods to perform fine tuning from the ot
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{assets/overfit_no_gam.png} 
+    \includegraphics[width=0.8\textwidth]{assets/overfit.png} 
     \caption{\textbf{Performance comparison of overfitted models under covariate shift}}
     \label{fig:overfitted-models-perf}
 \end{figure}
 
 
 % Although the GAM does not appear to be suffering from overfitting,
-As shown in \cref{fig:overfitted-models-perf}, we can clearly see that as we go through increasing percentage of mixed data points, the performance of the models are not on par with the ones that were fine tuned. As the plot further points out, the overfit led to a diversification in the models' AUC scores, with the decision tree model being the most affected by the overfitting process. 
+As depicted in \cref{fig:overfitted-models-perf}, the performance of the models declines as the percentage of mixed data points increases, falling short of the levels achieved by the fine-tuned models. The plot also highlights that overfitting resulted in greater variability in the models' AUC scores. Among the models, the decision tree was the most adversely affected by the overfitting process, whereas the logistic regression model demonstrated relatively better performance compared to the extreme gradient boosting model.
 
 \section{Random Walk Augmentation}
 
