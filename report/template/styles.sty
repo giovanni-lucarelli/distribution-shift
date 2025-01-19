@@ -4,9 +4,9 @@
 % Set A4 page margins
 \geometry{
   a4paper,
-  top=2.5cm,
-  bottom=2.5cm,
-  left=2.3cm,
+  top=2.3cm,
+  bottom=2.1cm,
+  left=2.1cm,
   right=2.3cm
 }
 
@@ -19,7 +19,7 @@
   % enable the following line to add line after chapter title
   %[\vspace{-0.5em}\centering\rule{0.9\textwidth}{0.1mm}]
   % disable the following line if you enable the previous one
-  [\vspace{0.5em}]
+  [\vspace{0.2em}]
 
 % Define unnumbered chapter title format (centered)
 \titleformat{name=\chapter,numberless}[display]
@@ -29,7 +29,7 @@
   {\fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n}}
 
 % Remove extra spacing around chapter titles
-\titlespacing*{\chapter}{0pt}{*0}{*0}
+\titlespacing*{\chapter}{-1pt}{*0}{*0}
 
 %? ----------------- Font and typography -----------------
 % Set Times New Roman as main document font
@@ -46,7 +46,13 @@
 % Remove paragraph indentation and set spacing
 \AtBeginDocument{
   \setlength{\parindent}{0pt}
-  \setlength{\parskip}{0.01em}
+  \setlength{\parskip}{0.5em}
+  \setlength{\textfloatsep}{5pt}     % Space between text and float
+  \setlength{\floatsep}{5pt}         % Space between floats
+  \setlength{\intextsep}{5pt}        % Space around in-text floats
+  \titlespacing*{\section}{0pt}{2.5ex plus 1ex minus .2ex}{2ex plus .2ex}
+  \titlespacing*{\subsection}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
+  \titlespacing*{\subsubsection}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
 }
 
 % Enable text justification
@@ -127,3 +133,25 @@
 
 \crefformat{table}{#2Table~#1#3}      % Make the entire "Table X" clickable
 \crefname{table}{Table}{Tables}       % Change cref name for tables
+
+%? ----------------- Bibliography -----------------
+%? ----------------- Bibliography -----------------
+% Reset bibliography formatting
+\AtBeginBibliography{
+  % Reset link colors to black
+  \hypersetup{allcolors=black}
+  
+  % Reset monospace font to Computer Modern Typewriter
+  \setmonofont{cmtt10}[
+    BoldFont={cmtt10},
+    ItalicFont={cmtt10},
+    BoldItalicFont={cmtt10}
+  ]
+  \renewcommand{\texttt}[1]{{\ttfamily #1}}
+  
+  % Reset URL style
+  \urlstyle{same}
+  
+  % Disable custom inline code box for bibliography
+  \let\texttt\oldtexttt
+}

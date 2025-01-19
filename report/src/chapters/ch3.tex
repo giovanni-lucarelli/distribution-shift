@@ -2,19 +2,19 @@
 
 \section{Evaluation Metric: AUC}
 
-We defined the \textbf{Area under the Curve} (\textbf{AUC}) as our metric to evaluate model performance. The AUC measures the performance of a classification model by calculating the area under the ROC curve, which plots the true positive rate against the false positive rate. The AUC ranges from 0 to 1, where 0 indicates no predictive power and 1 indicates perfect predictive power.
+We used the \textbf{Area under the Curve} (\textbf{AUC}) to evaluate model performance. The AUC measures the performance of a classification model by calculating the area under the ROC curve, which plots the true positive rate against the false positive rate. The AUC ranges from 0 to 1, where 0 indicates no predictive power and 1 indicates perfect predictive power.
 
 Because the AUC focuses on how well the model ranks positive instances above negative ones, it is generally robust to shifts in the data distribution: if a positive and a negative example are chosen at random, the model should consistently rank the positive example higher than the negative one. 
 
 \section{Models}
 
-Simple covariate shift can lead to serious degradations in model performance. In this chapter, we will analyze how different statistical learning models' performances are affected by covariate shift. 
+As metioned in the first chapter, simple covariate shift can lead to serious degradations in model performance. In this chapter, we will analyze how different statistical learning models' performances are affected by covariate shift. 
 
 We evaluated a diverse set of models, ranging from simple linear classifiers to more sophisticated ensemble methods, to comprehensively assess their robustness under covariate shift conditions:
 
 \begin{itemize}
     \item \textbf{Logistic Regression}: A linear classifier that serves as a baseline model;
-    \item \textbf{Decision Tree}: A simple non-linear model that creates a tree-like structure of decision rules;
+    \item \textbf{Decision Tree}: A non-linear model that creates a tree-like structure of decision rules;
     \item \textbf{Generalized Additive Model (GAM)}: A flexible statistical model that combines the interpretability of linear models with the ability to capture non-linear relationships;
     \item \textbf{Gradient Boosted Trees}: An ensemble learning method that creates sequential decision trees to iteratively correct prediction errors. Each tree focuses on the residuals from previous predictions, with optimized step sizes to minimize the overall loss function using gradient descent;
     \item \textbf{eXtreme Gradient Boosting (XGBoost)}: A highly optimized implementation of gradient boosting machines known for its efficiency and performance.
@@ -29,7 +29,7 @@ We firstly evaluated the performance of each vanilla model on the aforementioned
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{assets/vanilla.png} 
-    \caption{\textbf{Performance of vanilla models on datasets with varying degrees of covariate shift.} The AUC scores of the models are plotted against the mixing probability $p$, which represents the proportion of shifted data in the test set.}
+    \caption{\textbf{Performance comparison of vanilla models under covariate shift.} The AUC scores of the models are plotted against the mixing probability $p$, which represents the proportion of shifted data in the test set.}
     \label{fig:vanilla-models-perf}
 \end{figure}
 
@@ -44,29 +44,8 @@ The best choice for hyperparameters in these models might be different depending
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{assets/tuned.png} 
-    \caption{\textbf{Performance of fine tuned models on datasets with varying degrees of covariate shift.}}
+    \caption{\textbf{Performance comparison of fine tuned models under covariate shift.}}
     \label{fig:tuned-models-perf}
 \end{figure}
 
-As shown in \cref{fig:tuned-models-perf}, the fine-tuned models exhibit improved performance compared to the vanilla models. The decision tree model, which was the most sensitive to covariate shift, now performs almost on par with the other models. The GAM model remains the most robust, with consistently high AUC scores across all mixing probabilities.
-Bear in mind that we are still working on the fine tuning, especially for the XGBoost model which uses different methods to perform hyperparameter optimization.
-
-\subsubsection{Overfitting}
-
-% add a brief explanation of why we overfit the models
-
-In order to overfit the models, we created a custom script to perform grid search without cross-validation. We favored the hyperparameters that achieved the highest score on the training set, while ignoring the necessary precaution to avoid overfitting, i.e. We overshot the maximum depth reachable by the trees.
-
-%Since the logistic GAM is a method which automatically selects the functions that best fit the data, we did not perform any overfitting on it. 
-Since the logistic GAM uses different methods to perform fine tuning from the other ones, we are still trying to figure out how to implement a proper overfit. The results for the other models are shown in \cref{fig:overfitted-models-perf}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{assets/overfit_no_gam.png} 
-    \caption{\textbf{Performance of overfitted models on datasets with varying degrees of covariate shift.}}
-    \label{fig:overfitted-models-perf}
-\end{figure}
-
-
-% Although the GAM does not appear to be suffering from overfitting,
-As shown in \cref{fig:overfitted-models-perf}, we can clearly see that as we go through increasing percentage of mixed data points, the performance of the models are not on par with the ones that were fine tuned. As the plot further points out, the overfit led to a diversification in the models' AUC scores, with the decision tree model being the most affected by the overfitting process. 
+As shown in \cref{fig:tuned-models-perf}, the fine-tuned models exhibit improved performance compared to the vanilla models. The decision tree model, which was the most sensitive to covariate shift, now performs almost on par with the other models. The GAM model remains the most robust, with consistently high AUC scores across all mixing probabilities. Bear in mind that we are still working on the fine tuning.

@@ -1,8 +1,29 @@
 \chapter{Performance Enhancement}
 
-One of the most commonly used approaches to mitigate covariate shift consequences is \textit{Reweighting}, which involves quantifying the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists of generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. 
+One of the most used approach to mitigate covariate shift consequences is \textit{Reweighting}, which consists in quantify the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists in generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. In this chapter, we introduce two distinct strategies to improve model performance under covariate shift conditions: \textit{Overfitting} and an innovative approach we term \textbf{\textit{Random Walk Augmentation}}.
 
-In this chapter we propose a robust training method which, in a preliminary analysis, seems to outperform the other models in terms of robustness to covariate shift.
+\section{Overfitting}
+
+% add a brief explanation of why we overfit the models
+The simplest approach to improving model performance is to overfit the model on the training data. The idea is that by overfitting to the training data, the model may better capture the underlying data distribution, potentially leading to improved performance on the shifted test data—particularly for data points that lie within the intersection of the training and test distributions.
+
+In order to overfit the models, we created a custom script to perform grid search withot cross-validation. We favored the hyperparameters that achieved the highest score on the training set, while ignoring the necessary precaution to avoid overfitting, i.e. we overshot the maximum depth reachable by the trees.
+
+%Since the logistic GAM is a method which automatically selects the functions that best fit the data, we did not perform any overfitting on it. 
+Since the logistic GAM uses different methods to perform fine tuning from the other ones, we are still trying to figure out how to implement a proper overfit. The results for the other models are shown in \cref{fig:overfitted-models-perf}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/overfit_no_gam.png} 
+    \caption{\textbf{Performance comparison of overfitted models under covariate shift}}
+    \label{fig:overfitted-models-perf}
+\end{figure}
+
+
+% Although the GAM does not appear to be suffering from overfitting,
+As shown in \cref{fig:overfitted-models-perf}, we can clearly see that as we go through increasing percentage of mixed data points, the performance of the models are not on par with the ones that were fine tuned. As the plot further points out, the overfit led to a diversification in the models' AUC scores, with the decision tree model being the most affected by the overfitting process. 
+
+\section{Random Walk Augmentation}
 
 This method is based on the idea of \textbf{Data Augmentation}. Instead of using training data as it is, we create new data applying the following transformation to the original data:
 
@@ -29,10 +50,10 @@ This method is based on the idea of \textbf{Data Augmentation}. Instead of using
     \end{algorithmic}
 \end{algorithm}
 
-Interestingly, this method does not require any knowledge of the shifted test distributions, it simply adds noise to a certain percentage of the training data. Then it downsamples the augmented data to the original size.
-Despite the variation in the $x_i'$ values, the $y_i$ values remain the same, this leads to a \textbf{looser fit} on the training data and enhances the perfomance on the shifted test data.
+Interestingly, this method does not require any knolewdge of the shifted test distributions, it just performs a noising step on a variable percentage of the training data. Then it downsamples the augmented data to the original size.
+Despite the variation in the $x_i'$ values, the $y_i$ values remain the same, this leads to a \textbf{looser fit} on the training data and enhances the perfomarce on the shifted test data.
 
-\section{Experiments}
+\subsection{Experiments}
 We firstly evaluated this method on the same classification task as the other models, but, since we needed a better way to theoretically understand the inner processes of the training, we decided to apply it to a simple 1-dimensional regression problem.
 
 \subsection{Training Set}
