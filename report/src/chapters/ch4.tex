@@ -1,7 +1,36 @@
-\chapter{Giamboost}
+\chapter{Performance Enhancement}
 
-The usual approach to mitigate covariate shift conseqences is to quantify the degree of distribution shift and then apply a correction to the model.
+One of the most uded approach to mitigate covariate shift conseqences is \textit{Reweighting}, which consists in quantify the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists in generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. 
 
 In this chapter we propose a robust training method which, in a preliminary analysis, seams to outperform the other models in terms of robustness to covariate shift.
 
+This method is based on the idea of \textbf{Data Augmentation}. Instead of using training data as it is, we create new data applying the follofing transformation to the original data:
+
+\begin{algorithm}[H]
+    \caption{Custom Data Augmentation}
+    \begin{algorithmic}[1]
+        \Statex \textbf{Input:} $Data$, $N$
+        \Statex \textbf{Output:} $Data_\text{aug}$
+        \Statex
+        \State $Size$ \leftarrow $len(Data)$ 
+        \State $Data_\text{new}$ \leftarrow $Data$
+        \State $Data_\text{tr}$ \leftarrow random subset of $N\%$ of $Data$
+        \For{$x_i$ in $Data_\text{tr}$}
+            \State $x_i' \leftarrow 
+            \begin{cases}
+                X_i + \varepsilon & \text{with probability } 0.5 \\
+                X_i - \varepsilon & \text{with probability } 0.5
+            \end{cases}$
+            \State $y_i' \leftarrow y_i$
+        \EndFor
+        \State $Data_\text{aug} \leftarrow Data_\text{new} \cup Data_\text{tr}$
+        \State $Data_\text{aug} \leftarrow Downsample(Data_\text{aug}, Size)$
+        \State\Return $Data_\text{aug}$
+    \end{algorithmic}
+\end{algorithm}
+
+%TODO: explain the method
+
 We firstly evaluated this method on the same classification task as the other models, but, since we needed a better way to theoretically understand the inner processes of the training, we decided to apply it to a simple 1-dimensional regression problem.
+
+%TODO: insert images and results
