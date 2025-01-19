@@ -1,4 +1,10 @@
-\chapter{Data Generation}
+\chapter{Problem Statement and Data Generation}
+
+\section{Problem Statement}
+\label{sec:problem_statement}
+The goal of this work is to develop a machine learning model that can accurately predict the target variable $Y$ from the features $X_1$, $X_2$, and $X_3$ in the presence of covariate distribution shift. Covariate distribution shift occurs when the distribution of the input features in the test data differs from that in the training data. This discrepancy can lead to a degradation in model performance, as the model may rely on spurious correlations present in the training data that do not generalize to the test data. The challenge is to develop a model that can learn a representation of the data that is invariant to these distributional shifts, thereby improving generalization performance across varying degrees of shift.
+
+\section{Data Generation}
 
 To evaluate the performance of the proposed models under varying degrees of covariate distribution shift, we simulated a training dataset and multiple test datasets, each exhibiting a distinct degree of shift. 
 This setup enables a comprehensive assessment of the models' generalization capabilities.
