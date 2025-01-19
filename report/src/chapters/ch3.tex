@@ -2,10 +2,9 @@
 
 \section{Evaluation Metric: AUC}
 
-We defined the Area under the Curve (AUC) as the metric to evaluate the performance of the models. The AUC is a measure of the performance of a classification model.
-It is calculated as the area under the ROC curve. The ROC curve is a graphical representation of the true positive rate against the false positive rate. The AUC ranges from 0 to 1, where 0 indicates a model with no predictive power and 1 indicates a model with perfect predictive power. 
+We defined the \textbf{Area under the Curve} (\textbf{AUC}) as our metric to evaluate model performance. The AUC measures the performance of a classification model by calculating the area under the ROC curve, which plots the true positive rate against the false positive rate. The AUC ranges from 0 to 1, where 0 indicates no predictive power and 1 indicates perfect predictive power.
 
-The AUC evaluates how well the model ranks positive instances against negative ones, this means that whenever a positive and negative example are chosen at random, the model will rank the positive example higher than the negative one. This characteristic allows it to remain effective even when there are shifts in the underlying data distribution.
+Because the AUC focuses on how well the model ranks positive instances above negative ones, it is generally robust to shifts in the data distribution: if a positive and a negative example are chosen at random, the model should consistently rank the positive example higher than the negative one. 
 
 \section{Models}
 
@@ -40,7 +39,7 @@ Given these preliminary results, we proceeded with hyperparameter optimization t
 
 \subsubsection{Fine Tuning}
 
-The best choice for hyperparameters in this models might be different depending on the dataset. In order to find the hyperparameters that best fit the data, we performed a hyperparameter tuning using the \plaintt{GridSearchCv} function from the \plaintt{scikit-learn} library, wich performs a cross-validation (k=5) to select the best hyperparameters for each model.
+The best choice for hyperparameters in these models might be different depending on the dataset. In order to find the hyperparameters that best fit the data, we performed a hyperparameter tuning using the \plaintt{GridSearchCV} function from the \plaintt{scikit-learn} library, which performs a cross-validation (k=5) to select the best hyperparameters for each model.
 
 \begin{figure}[H]
     \centering
@@ -50,13 +49,13 @@ The best choice for hyperparameters in this models might be different depending 
 \end{figure}
 
 As shown in \cref{fig:tuned-models-perf}, the fine-tuned models exhibit improved performance compared to the vanilla models. The decision tree model, which was the most sensitive to covariate shift, now performs almost on par with the other models. The GAM model remains the most robust, with consistently high AUC scores across all mixing probabilities.
-Bear in mind that we are still working on the fine tuning, expecially for the XGBoost model which uses different methods to perform hyperparameter optimization.
+Bear in mind that we are still working on the fine tuning, especially for the XGBoost model which uses different methods to perform hyperparameter optimization.
 
 \subsubsection{Overfitting}
 
 % add a brief explanation of why we overfit the models
 
-In order to overfit the models, we created a custom script to perform grid search withot cross-validation. We favored the hyperparameters that achieved the highest score on the training set, while ignoring the necessary precaution to avoid overfitting, i.e. we overshot the maximum depth reachable by the trees.
+In order to overfit the models, we created a custom script to perform grid search without cross-validation. We favored the hyperparameters that achieved the highest score on the training set, while ignoring the necessary precaution to avoid overfitting, i.e. We overshot the maximum depth reachable by the trees.
 
 %Since the logistic GAM is a method which automatically selects the functions that best fit the data, we did not perform any overfitting on it. 
 Since the logistic GAM uses different methods to perform fine tuning from the other ones, we are still trying to figure out how to implement a proper overfit. The results for the other models are shown in \cref{fig:overfitted-models-perf}.

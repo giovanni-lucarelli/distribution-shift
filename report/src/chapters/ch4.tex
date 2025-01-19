@@ -1,8 +1,8 @@
 \chapter{Performance Enhancement}
 
-One of the most used approach to mitigate covariate shift consequences is \textit{Reweighting}, which consists in quantify the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists in generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. 
+One of the most commonly used approaches to mitigate covariate shift consequences is \textit{Reweighting}, which involves quantifying the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists of generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. 
 
-In this chapter we propose a robust training method which, in a preliminary analysis, seams to outperform the other models in terms of robustness to covariate shift.
+In this chapter we propose a robust training method which, in a preliminary analysis, seems to outperform the other models in terms of robustness to covariate shift.
 
 This method is based on the idea of \textbf{Data Augmentation}. Instead of using training data as it is, we create new data applying the following transformation to the original data:
 
@@ -29,8 +29,8 @@ This method is based on the idea of \textbf{Data Augmentation}. Instead of using
     \end{algorithmic}
 \end{algorithm}
 
-Interestingly, this method does not require any knolewdge of the shifted test distributions, it just performs a noising step on a variable percentage of the training data. Then it downsamples the augmented data to the original size.
-Despite the variation in the $x_i'$ values, the $y_i$ values remain the same, this leads to a \textbf{looser fit} on the training data and enhances the perfomarce on the shifted test data.
+Interestingly, this method does not require any knowledge of the shifted test distributions, it simply adds noise to a certain percentage of the training data. Then it downsamples the augmented data to the original size.
+Despite the variation in the $x_i'$ values, the $y_i$ values remain the same, this leads to a \textbf{looser fit} on the training data and enhances the perfomance on the shifted test data.
 
 \section{Experiments}
 We firstly evaluated this method on the same classification task as the other models, but, since we needed a better way to theoretically understand the inner processes of the training, we decided to apply it to a simple 1-dimensional regression problem.
