@@ -4,9 +4,9 @@
 \section{Dataset Shift}
 
 
-\par In the field of machine learning and predictive modeling, it is often assumed that data distributions remain static, meaning they do not change between the training and deployment phases of the model. However, in practice, this assumption is rarely satisfied: data distributions can undergo significant changes between the training and testing scenarios.
+In the field of machine learning and predictive modeling, it is often assumed that data distributions remain static, meaning they do not change between the training and deployment phases of the model. However, in practice, this assumption is rarely satisfied: data distributions can undergo significant changes between the training and testing scenarios.
 
-\par This phenomenon is known as ``dataset shift''\cite{shiftbook} and is closely related to another field of study, referred to by various terms such as ``transfer learning" or ``inductive transfer". Transfer learning addresses the problem of how information can be drawn from a number of only partially related training scenarios and used to provide better predictions in one of those scenarios compared to using only that specific scenario. Therefore, dataset shift represents a more specific case: it deals with relating information in, typically, two closely related environments to improve prediction in one given the dataset in the other. Given this issue, it is crucial to develop an understanding of the suitability of particular models under such changing conditions, and it is necessary to consider whether a different predictive model should be employed.
+This phenomenon is known as ``dataset shift''\cite{shiftbook} and is closely related to another field of study, referred to by various terms such as ``transfer learning" or ``inductive transfer". Transfer learning addresses the problem of how information can be drawn from a number of only partially related training scenarios and used to provide better predictions in one of those scenarios compared to using only that specific scenario. Therefore, dataset shift represents a more specific case: it deals with relating information in, typically, two closely related environments to improve prediction in one given the dataset in the other. Given this issue, it is crucial to develop an understanding of the suitability of particular models under such changing conditions, and it is necessary to consider whether a different predictive model should be employed.
 
 Among the various forms of dataset shift, covariate shift, studied and described by Shimodaira\cite{SHIMODAIRA2000227}, is one of the most extensively researched forms. It encompasses situations where the distribution of the covariates, $P(X)$ changes, while the conditional relationship $P(Y \mid X)$, representing the relationship between the covariates $X$ and the target $Y$, remains unchanged. In this case, the typical values of the covariates observed during testing differ from those observed during training.
 
@@ -20,39 +20,24 @@ The two most common and studied causes of dataset shift are:
 	\item Non-stationary environments
 \end{enumerate}
 
-
-Sample selection bias occurs when there is a discrepancy in the data distribution due to the training data being obtained through a biased method, and therefore not reliably representing the real environment in which the classifier will be used (the test set).
-
-It is not a flaw of an algorithm or data management but a systematic defect in the process of collecting or labeling data, which causes a non-uniform selection of training examples from a population, leading to the formation of bias during training.
-
-Dataset shift resulting from sample selection bias is particularly relevant when dealing with imbalanced classification problems, as in highly imbalanced domains, the minority class is especially sensitive to single classification errors due to its typically low number of samples.
+Sample selection bias occurs when there is a discrepancy in the data distribution due to the training data being obtained through a biased method, and therefore not reliably representing the real environment in which the classifier will be used (the test set). It is not a flaw of an algorithm or data management but a systematic defect in the process of collecting or labeling data, which causes a non-uniform selection of training examples from a population, leading to the formation of bias during training. Dataset shift resulting from sample selection bias is particularly relevant when dealing with imbalanced classification problems, as in highly imbalanced domains, the minority class is especially sensitive to single classification errors due to its typically low number of samples. 
 
 In real-world applications, it is often the case that data is not stationary (in time or space). One of the most relevant non-stationary scenarios involves adversarial classification problems, such as spam filtering and network intrusion detection.
 	
 
 \section{Covariate Shift}
 
-As previously mentioned, covariate shift is a specific type of dataset shift often encountered in machine learning.
+As previously mentioned, covariate shift is a specific type of dataset shift often encountered in machine learning. It occurs when the distribution of input data changes between the training environment and the operational environment, but there is no change in the underlying relationship between the input and output. Mathematically, this case can be defined as follows:  
 	
-It occurs when the distribution of input data changes between the training environment and the operational environment, but there is no change in the underlying relationship between the input and output.  
-	
-Mathematically, this case can be defined as follows:  
-	
-	\vspace{0.5cm}  
-	\textbf{Definition:} \textit{Covariate shift} occurs only in problems of the type $X \to Y$ and is defined as the case where:  
-	
-	$$
-	P_{\text{tra}}(Y \mid X) = P_{\text{tst}}(Y \mid X) \quad \text{and} \quad P_{\text{tra}}(X) \neq P_{\text{tst}}(X)
-	$$
+\textbf{Definition:} \textit{Covariate shift} occurs only in problems of the type $X \to Y$ and is defined as the case where:  
 
-	where $P_{\text{tra}}$ and $P_{\text{tst}}$ represent the probability distributions in the training data and test data, respectively.  
-	\vspace{0.5cm}  
-	
-Covariate shift is a phenomenon that can affect a wide range of machine learning models, regardless of the task they are designed to perform.
+$$
+P_{\text{tra}}(Y \mid X) = P_{\text{tst}}(Y \mid X) \quad \text{and} \quad P_{\text{tra}}(X) \neq P_{\text{tst}}(X)
+$$
 
-It is commonly encountered in scenarios where models classify data or predict trends based on input features.
+where $P_{\text{tra}}$ and $P_{\text{tst}}$ represent the probability distributions in the training data and test data, respectively.  
 
-This issue is particularly relevant in diverse machine learning applications, including but not limited to:
+Covariate shift is a phenomenon that can affect a wide range of machine learning models, regardless of the task they are designed to perform. It is commonly encountered in scenarios where models classify data or predict trends based on input features. This issue is particularly relevant in diverse machine learning applications, including but not limited to:
 	
 	\begin{enumerate}
 		\item Image categorization and facial recognition systems
