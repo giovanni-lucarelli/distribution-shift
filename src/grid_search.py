@@ -4,6 +4,9 @@ from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import roc_auc_score
 from multiprocessing import Pool, cpu_count
 from functools import partial
+from itertools import product
+import xgboost as xgb
+import time
 
 best_params = {
     "LogisticGAM" : {
@@ -105,7 +108,7 @@ def _fit_and_score(params, model, X_train, y_train):
     score = roc_auc_score(y_train, predictions)
     return score, params, model
 
-def overfit_models(X_train, y_train, model, param_grid, verbose=1):
+def overfit_models(X_train, y_train, model, param_grid, verbose=1, n_jobs=-1):
     grid = list(ParameterGrid(param_grid))
     best_score = -1
     best_params = None
@@ -118,11 +121,13 @@ def overfit_models(X_train, y_train, model, param_grid, verbose=1):
     worker = partial(_fit_and_score, model=model, X_train=X_train, y_train=y_train)
     
     # Use all available CPU cores
-    n_cores = cpu_count()
-    print(f"Running grid search with {n_cores} cores")
+    if n_jobs == -1:
+        n_jobs = cpu_count()
+    n_jobs = min(n_jobs, len(grid))
+    print(f"Running grid search with {n_jobs} cores")
     
     # Run the grid search in parallel
-    with Pool(processes=n_cores) as pool:
+    with Pool(processes=n_jobs) as pool:
         results = pool.map(worker, grid)
     
     # Find the best result
@@ -137,4 +142,80 @@ def overfit_models(X_train, y_train, model, param_grid, verbose=1):
     
     return best_model, best_params, best_score
 
+def _evaluate_params(args):
+    """Optimized parameter evaluation + early stopping"""
+    params, X, y, nfold, early_stopping = args
+    
+    # Copio il dizionario per evitare side-effect
+    local_params = params.copy()
+    
+    # Imposta obiettivo e metrica
+    local_params.update({'objective': 'binary:logistic', 'eval_metric': 'auc'})
+    
+    # Estrae n_estimators come num_boost_round
+    # se non presente, fallback a 100
+    num_boost_round = local_params.pop('n_estimators', 100)
+    
+    # Crea il DMatrix all'interno della funzione
+    dtrain = xgb.DMatrix(X, label=y)
+    
+    # Esegui la cross-validation
+    cv_results = xgb.cv(
+        params=local_params,
+        dtrain=dtrain,
+        nfold=nfold,
+        metrics="auc",
+        seed=0,
+        verbose_eval=False,
+        num_boost_round=num_boost_round,
+        early_stopping_rounds=early_stopping  # <--- EARLY STOPPING
+    )
+    
+    # Miglior AUC e indice della miglior iterazione
+    best_auc = cv_results['test-auc-mean'].max()
+    best_round = cv_results['test-auc-mean'].idxmax() + 1  # +1 perché l’indice parte da 0
+    
+    return best_auc, best_round, params
 
+def grid_search_cv_xgb(param_grid, X, y, nfold=5, early_stopping=10, n_jobs=-1, verbose=True):
+    start_time = time.time()
+    
+    # Crea tutte le combinazioni di iperparametri
+    param_combinations = [
+        dict(zip(param_grid.keys(), v)) for v in product(*param_grid.values())
+    ]
+    
+    if verbose:
+        print(f"Starting grid search with {len(param_combinations)} combinations, "
+              f"training {len(param_combinations) * nfold} models")
+    
+    n_jobs = cpu_count() if n_jobs == -1 else n_jobs
+    n_jobs = min(n_jobs, len(param_combinations))
+    if verbose:
+        print(f"Running grid search with {n_jobs} cores")
+    
+    # Prepara gli argomenti per l'evaluazione in parallelo
+    # Passiamo anche nfold ed early_stopping
+    args = [(params, X, y, nfold, early_stopping) for params in param_combinations]
+    
+    # Run parallel evaluation
+    with Pool(processes=n_jobs) as pool:
+        results = pool.map(_evaluate_params, args)
+    
+    # results contiene tuple: (best_auc, best_round, original_params)
+    # Cerchiamo la tupla con best_auc massima
+    best_auc, best_round, best_params = max(results, key=lambda x: x[0])
+    
+    # Ricostruisci il modello XGBClassifier con i best params
+    # Imposta n_estimators = best_round (ottenuto dall’Early Stopping in CV)
+    # Così il modello finale avrà il numero di alberi “ottimale”
+    model_params = best_params.copy()
+    model_params['n_estimators'] = best_round  # Imposto la best iteration
+    
+    if verbose:
+        print(f"Best Parameters: {best_params}")
+        
+    best_model = xgb.XGBClassifier(**model_params)
+    best_model.fit(X, y)
+    
+    return best_model
