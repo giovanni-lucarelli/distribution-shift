@@ -36,9 +36,21 @@ best_params = {
         "random_state": 0
     },
     "XGBoost" : {
-        #"max_depth": 5,
-        #"n_estimators": 100
+        'n_estimators': 50,
+        'learning_rate': 0.1,
+        'max_depth': 6,
+        'min_child_weight': 2,
+        'subsample': 0.7,
+        'colsample_bytree': 1.0,
+        'reg_alpha': 1,
+        'reg_lambda': 1,
+        'gamma': 5
     },
+    "LogisticRegression" : {
+        "penalty": "l2",
+        "C": 0.1,
+        "solver": "liblinear"
+    }
 }
 
 # #? overfitting params
@@ -75,15 +87,22 @@ best_params = {
 #         'n_estimators': 200,
 #         'subsample': 0.7
 #     },
+#     "LogisticRegression" : {
+#         'C': 10,
+#         'max_iter': 500,
+#         'penalty': 'l1',
+#         'solver': 'liblinear'
+#     }
 # }
 
-#? vanilla params
+# #? vanilla params
 # best_params = {
 #     "LogisticGAM" : {},
 #     "DecisionTreeClassifier" : {},
 #     "GradientBoostingClassifier" : {},
 #     "RandomForestClassifier" : {},
 #     "XGBoost" : {},
+#     "LogisticRegression" : {},
 # }
 
 
@@ -108,11 +127,24 @@ def _fit_and_score(params, model, X_train, y_train):
     score = roc_auc_score(y_train, predictions)
     return score, params, model
 
+def _check_params(params):
+    if params['penalty'] is None and params['solver'] == 'liblinear':
+        return False
+    if params['penalty'] == 'l1' and params['solver'] not in ['liblinear', 'saga']:
+        return False
+    if params['penalty'] == 'l2' and params['solver'] not in ['liblinear', 'lbfgs', 'saga', 'newton-cg']:
+        return False
+    return True
+
 def overfit_models(X_train, y_train, model, param_grid, verbose=1, n_jobs=-1):
     grid = list(ParameterGrid(param_grid))
     best_score = -1
     best_params = None
     best_model = None
+    
+    print(model.__class__.__name__)
+    if model.__class__.__name__ == 'LogisticRegression':
+        grid = [params for params in grid if _check_params(params)]
     
     if verbose:
         print(f"Searching for best parameters for {model.__class__.__name__}, training {len(grid)} models")
@@ -145,21 +177,15 @@ def overfit_models(X_train, y_train, model, param_grid, verbose=1, n_jobs=-1):
 def _evaluate_params(args):
     """Optimized parameter evaluation + early stopping"""
     params, X, y, nfold, early_stopping = args
-    
-    # Copio il dizionario per evitare side-effect
     local_params = params.copy()
-    
-    # Imposta obiettivo e metrica
+    # set objective and eval metric
     local_params.update({'objective': 'binary:logistic', 'eval_metric': 'auc'})
-    
-    # Estrae n_estimators come num_boost_round
-    # se non presente, fallback a 100
+    # extract n_estimators and remove from local_params
+    # if not present, default to 100
     num_boost_round = local_params.pop('n_estimators', 100)
-    
-    # Crea il DMatrix all'interno della funzione
+    # Create DMatrix
     dtrain = xgb.DMatrix(X, label=y)
-    
-    # Esegui la cross-validation
+    # Execute CV
     cv_results = xgb.cv(
         params=local_params,
         dtrain=dtrain,
@@ -170,11 +196,9 @@ def _evaluate_params(args):
         num_boost_round=num_boost_round,
         early_stopping_rounds=early_stopping  # <--- EARLY STOPPING
     )
-    
-    # Miglior AUC e indice della miglior iterazione
+    # best auc e best round
     best_auc = cv_results['test-auc-mean'].max()
-    best_round = cv_results['test-auc-mean'].idxmax() + 1  # +1 perché l’indice parte da 0
-    
+    best_round = cv_results['test-auc-mean'].idxmax() + 1  # +1 -> index starts from 0
     return best_auc, best_round, params
 
 def grid_search_cv_xgb(param_grid, X, y, nfold=5, early_stopping=10, n_jobs=-1, verbose=True):
