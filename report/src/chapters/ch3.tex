@@ -30,7 +30,7 @@ We firstly evaluated the performance of each vanilla model on the aforementioned
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{assets/vanilla.png} 
-    \caption{\textbf{Performance of vanilla models on datasets with varying degrees of covariate shift.} \newline The AUC scores of the models are plotted against the mixing probability $p$, which represents the proportion of shifted data in the test set.}
+    \caption{\textbf{Performance of vanilla models on datasets with varying degrees of covariate shift.} The AUC scores of the models are plotted against the mixing probability $p$, which represents the proportion of shifted data in the test set.}
     \label{fig:vanilla-models-perf}
 \end{figure}
 
@@ -50,12 +50,16 @@ The best choice for hyperparameters in this models might be different depending 
 \end{figure}
 
 As shown in \cref{fig:tuned-models-perf}, the fine-tuned models exhibit improved performance compared to the vanilla models. The decision tree model, which was the most sensitive to covariate shift, now performs almost on par with the other models. The GAM model remains the most robust, with consistently high AUC scores across all mixing probabilities.
+Bear in mind that we are still working on the fine tuning, expecially for the XGBoost model which uses different methods to perform hyperparameter optimization.
 
 \subsubsection{Overfitting}
 
+% add a brief explanation of why we overfit the models
+
 In order to overfit the models, we created a custom script to perform grid search withot cross-validation. We favored the hyperparameters that achieved the highest score on the training set, while ignoring the necessary precaution to avoid overfitting, i.e. we overshot the maximum depth reachable by the trees.
 
-Since the logistic GAM is a method which automatically selects the functions that best fit the data, we did not perform any overfitting on it. The results for the other models are shown in \cref{fig:overfitted-models-perf}.
+%Since the logistic GAM is a method which automatically selects the functions that best fit the data, we did not perform any overfitting on it. 
+Since the logistic GAM uses different methods to perform fine tuning from the other ones, we are still trying to figure out how to implement a proper overfit. The results for the other models are shown in \cref{fig:overfitted-models-perf}.
 
 \begin{figure}[H]
     \centering
@@ -66,4 +70,4 @@ Since the logistic GAM is a method which automatically selects the functions tha
 
 
 % Although the GAM does not appear to be suffering from overfitting,
-As shown in \cref{fig:overfitted-models-perf}, we can clearly see that as we go through increasing percentage of mixed data points, the performance of the models are not comparable with the ones that were fine tuned. As the plot forthere points out, the overfitting lead to an overall levelling of the models' performances, making it difficult to spot any significant difference between them.
+As shown in \cref{fig:overfitted-models-perf}, we can clearly see that as we go through increasing percentage of mixed data points, the performance of the models are not on par with the ones that were fine tuned. As the plot further points out, the overfit led to a diversification in the models' AUC scores, with the decision tree model being the most affected by the overfitting process. 

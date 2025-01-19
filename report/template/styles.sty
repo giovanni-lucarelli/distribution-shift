@@ -14,7 +14,7 @@
 \titleformat{\chapter}[display]
   {\normalfont\bfseries\vspace{-3em}}
   {\hfill\fontsize{80}{80}\selectfont\textcolor{gray!60}{\usefont{T1}{qbk}{m}{n}\thechapter}}
-  {-25pt}
+  {-15pt}
   {\hfill\fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n}}
   % enable the following line to add line after chapter title
   %[\vspace{-0.5em}\centering\rule{0.9\textwidth}{0.1mm}]
@@ -46,7 +46,7 @@
 % Remove paragraph indentation and set spacing
 \AtBeginDocument{
   \setlength{\parindent}{0pt}
-  \setlength{\parskip}{0.5em}
+  \setlength{\parskip}{0.01em}
 }
 
 % Enable text justification
@@ -106,7 +106,7 @@
 }
 
 \captionsetup{indention=\parindent,labelfont={small,bf},labelsep=period,%
-  tableposition=top,textfont={small}}
+  tableposition=top,textfont={small},skip=2pt, belowskip=-2pt}
 
 %? ----------------- Custom hyperlinks -----------------
 % Set the hyperlink colors
