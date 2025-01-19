@@ -3,27 +3,13 @@
 
 \section{Dataset Shift}
 
-In the field of machine learning and predictive modeling, it is often assumed that data distributions remain static, meaning they do not change between the training and deployment phases of the model.
 
-However, in practice, this assumption is rarely satisfied: data distributions can undergo significant changes between the training and testing scenarios.
-	
-\vspace{0.3cm}
-	This phenomenon is known as "dataset shift" and is closely related to another field of study, referred to by various terms such as "transfer learning" or "inductive transfer".
-    
-    Transfer learning addresses the problem of how information can be drawn from a number of only partially related training scenarios and used to provide better predictions in one of those scenarios compared to using only that specific scenario.
-    
-    Therefore, dataset shift represents a more specific case: it deals with relating information in, typically, two closely related environments to improve prediction in one given the dataset in the other.
-	
-\vspace{0.3cm}
-	Given this issue, it is crucial to develop an understanding of the suitability of particular models under such changing conditions, and it is necessary to consider whether a different predictive model should be employed.
-	
-\vspace{0.3cm}
-	Among the various forms of dataset shift, covariate shift, studied and described by Shimodaira in 2000, is one of the most extensively researched forms.
-    
-    It encompasses situations where the distribution of the covariates, $P(X)$ changes, while the conditional relationship $P(Y \mid X)$, representing the relationship between the covariates $X$ and the target $Y$, remains unchanged.
-    
-    In this case, the typical values of the covariates observed during testing differ from those observed during training.
-	
+\par In the field of machine learning and predictive modeling, it is often assumed that data distributions remain static, meaning they do not change between the training and deployment phases of the model. However, in practice, this assumption is rarely satisfied: data distributions can undergo significant changes between the training and testing scenarios.
+
+\par This phenomenon is known as ``dataset shift''\cite{shiftbook} and is closely related to another field of study, referred to by various terms such as ``transfer learning" or ``inductive transfer". Transfer learning addresses the problem of how information can be drawn from a number of only partially related training scenarios and used to provide better predictions in one of those scenarios compared to using only that specific scenario. Therefore, dataset shift represents a more specific case: it deals with relating information in, typically, two closely related environments to improve prediction in one given the dataset in the other. Given this issue, it is crucial to develop an understanding of the suitability of particular models under such changing conditions, and it is necessary to consider whether a different predictive model should be employed.
+
+Among the various forms of dataset shift, covariate shift, studied and described by Shimodaira\cite{SHIMODAIRA2000227}, is one of the most extensively researched forms. It encompasses situations where the distribution of the covariates, $P(X)$ changes, while the conditional relationship $P(Y \mid X)$, representing the relationship between the covariates $X$ and the target $Y$, remains unchanged. In this case, the typical values of the covariates observed during testing differ from those observed during training.
+
 	
 \subsection{Most common causes of dataset shift}
 	
