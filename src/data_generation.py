@@ -60,8 +60,16 @@ def build_mixture_sample(num_samples, mean1, cov1, mean2, cov2, mix_prob):
 # Target generation functions
 
 def polynomial(samples, degree, coefficients=None):
+    
+    #check if samples is 1-dim
+
+    if len(samples.shape) < 2:
+        print("Reshaping samples to 2D")
+        samples = samples.reshape(-1, 1)
+    
     num_samples = samples.shape[0]
     num_features = samples.shape[1]
+
     terms = []
     generated_coefficients = []  # To store generated coefficients if not provided
 
