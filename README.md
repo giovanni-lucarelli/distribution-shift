@@ -10,6 +10,8 @@ Questions:
 - **Are some models more robust than others w.r.t. simple covariate shift?**
 - **How can we improve performance after the shift?**
 
+> [!note]
+> [Here](<https://raw.githubusercontent.com/giovanni-lucarelli/distribution-shift/main/report/src/main.pdf>) you can find a more complete pdf version of the project report
 
 ## Table of Contents
 - [Distribution Shift](#distribution-shift)

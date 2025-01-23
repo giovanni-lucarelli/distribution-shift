@@ -5,11 +5,9 @@ from itertools import combinations_with_replacement
 # Attribute generation functions
 
 def attributes_quantile(df, probability):
-  quantiles= df.quantile(probability)
-  quantiles = quantiles[:-1] # Remove the last element
-
-  return quantiles
-
+    quantiles= df.quantile(probability)
+    quantiles = quantiles[:-2] # Remove the last two elements
+    return quantiles
 
 def random_cov(num_features, low=-1, high=1):
   # Define the covariance matrix
@@ -59,12 +57,19 @@ def build_mixture_sample(num_samples, mean1, cov1, mean2, cov2, mix_prob):
 
     return samples
 
-
 # Target generation functions
 
 def polynomial(samples, degree, coefficients=None):
+    
+    #check if samples is 1-dim
+
+    if len(samples.shape) < 2:
+        print("Reshaping samples to 2D")
+        samples = samples.reshape(-1, 1)
+    
     num_samples = samples.shape[0]
     num_features = samples.shape[1]
+
     terms = []
     generated_coefficients = []  # To store generated coefficients if not provided
 
@@ -87,7 +92,6 @@ def polynomial(samples, degree, coefficients=None):
     # Return the polynomial values and either the passed or generated coefficients
     return polynomial_values, (coefficients if generated_coefficients == [] else generated_coefficients)
 
-
 def sigmoid(x):
     """
     Computes the sigmoid activation function element-wise.
@@ -104,7 +108,6 @@ def sigmoid(x):
     """
     return 1 / (1 + np.exp(-x))
 
-
 def build_poly_target(sample, degree, coefficients=None):
   polynomial_values, coef = polynomial(sample, degree, coefficients)
 
@@ -112,4 +115,4 @@ def build_poly_target(sample, degree, coefficients=None):
 
   y = np.random.binomial(1, prob1)
 
-  return y, coef
+  return y, polynomial_values, coef

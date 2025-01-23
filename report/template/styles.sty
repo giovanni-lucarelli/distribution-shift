@@ -1,0 +1,158 @@
+\ProvidesPackage{../template/styles}
+
+% command for chapter authors
+\newcommand{\chapterauthor}[1]{\vspace{-1em}\hfill{\small\textcolor{black!60}{[#1]}}}
+
+%? ----------------- Base page layout -----------------
+% Set A4 page margins
+\geometry{
+  a4paper,
+  top=2.3cm,
+  bottom=2.1cm,
+  left=2.1cm,
+  right=2.3cm
+}
+
+% Define numbered chapter title format with author support
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\vspace{-3em}}
+  {\hfill\fontsize{80}{80}\selectfont\textcolor{gray!60}{\usefont{T1}{qbk}{m}{n}\thechapter}}
+  {-15pt}
+  {\hfill\fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n}}
+  [\vspace{0.2em}]
+
+% Define unnumbered chapter title format with author support
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\bfseries}
+  {}
+  {0pt}
+  {\fontsize{30}{30}\selectfont\usefont{T1}{put}{m}{n}}
+  [\vspace{0.2em}]
+
+% Remove extra spacing around chapter titles
+\titlespacing*{\chapter}{-1pt}{*0}{*0}
+
+%? ----------------- Font and typography -----------------
+% Set Times New Roman as main document font
+\setmainfont{Latin Modern Roman}%Times New Roman}
+
+% Set Cascadia Code as monospace font with variants
+\setmonofont{Cascadia Code}[
+    BoldFont={Cascadia Code Bold},
+    ItalicFont={Cascadia Code Italic},
+    BoldItalicFont={Cascadia Code Bold Italic}
+]
+
+%? ----------------- Text alignment and spacing -----------------
+% Remove paragraph indentation and set spacing
+\AtBeginDocument{
+  \setlength{\parindent}{0pt}
+  \setlength{\parskip}{0.5em}
+  \setlength{\textfloatsep}{5pt}     % Space between text and float
+  \setlength{\floatsep}{5pt}         % Space between floats
+  \setlength{\intextsep}{5pt}        % Space around in-text floats
+  \titlespacing*{\section}{0pt}{2.5ex plus 1ex minus .2ex}{2ex plus .2ex}
+  \titlespacing*{\subsection}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
+  \titlespacing*{\subsubsection}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
+}
+
+% Enable text justification
+\justifying
+\hyphenpenalty=500
+\tolerance=1000
+\emergencystretch=\maxdimen
+
+%? ----------------- Layout and Design -----------------
+% Enable the custom headers and footers
+\pagestyle{fancy}
+\fancyhf{} % Clear all headers and footers
+\fancyfoot[L]{\nouppercase{\leftmark}} % Chapter and section name at the bottom left
+\fancyfoot[R]{\thepage} % Page number at the bottom right
+\renewcommand{\headrulewidth}{0pt} % Remove header line
+\renewcommand{\footrulewidth}{0.5pt} % Add footer line
+
+\newtcbox{\inlinecode}{on line,
+  enhanced,
+  fontupper=\ttfamily\footnotesize,
+  colframe=white,
+  boxrule=0mm,
+  arc=0.5mm,
+  boxsep=1mm,
+  left=0mm, right=0mm,
+  top=0mm, bottom=0mm,
+  interior style={
+    top color=gray!20,
+    bottom color=gray!10
+  }
+}
+
+% Redefine texttt to use inlinecode by default
+\let\oldtexttt\texttt
+\renewcommand{\texttt}[1]{\inlinecode{#1}}
+
+% New command for plain monospace text without background
+\newcommand{\plaintt}[1]{{\ttfamily\footnotesize #1}}
+
+% Redefine the plain page style
+\fancypagestyle{plain}{
+    \fancyhf{} % clear all header and footer fields
+    \fancyfoot[L]{\nouppercase{\leftmark}} % Chapter and section name at the bottom left
+    \fancyfoot[R]{\thepage} % Page number at the bottom right
+    \renewcommand{\headrulewidth}{0pt} % Remove header line
+    \renewcommand{\footrulewidth}{0.5pt} % Add footer line
+}
+
+% Background configuration
+\backgroundsetup{
+  scale=1,
+  opacity= 0.03,
+  angle=0,
+  position=current page.center,
+  % uncomment to 
+  %contents={\includegraphics[width=\textwidth]{../template/logo.jpg}}
+}
+
+\captionsetup{indention=\parindent,labelfont={small,bf},labelsep=period,%
+  tableposition=top,textfont={small},skip=2pt, belowskip=-2pt}
+
+%? ----------------- Custom hyperlinks -----------------
+% Set the hyperlink colors
+\hypersetup{
+  colorlinks = true,                % Color links
+  linktoc = all,                    % Makes all the ref clickable
+  allcolors = {violet!70!blue},     % link colors
+}
+
+\crefformat{chapter}{#2Chapter~#1#3}  % Make the entire "Chapter X" clickable
+\crefname{chapter}{Chapter}{Chapters} % Change cref name for chapters
+
+\crefformat{section}{#2Section~#1#3}  % Make the entire "Section X" clickable
+\crefname{section}{Section}{Sections} % Change cref name for sections
+
+\crefformat{figure}{#2Figure~#1#3}    % Make the entire "Figure X" clickable
+\crefname{figure}{Figure}{Figures}    % Change cref name for figures
+
+\crefformat{table}{#2Table~#1#3}      % Make the entire "Table X" clickable
+\crefname{table}{Table}{Tables}       % Change cref name for tables
+
+%? ----------------- Bibliography -----------------
+%? ----------------- Bibliography -----------------
+% Reset bibliography formatting
+\AtBeginBibliography{
+  % Reset link colors to black
+  \hypersetup{allcolors=black}
+  
+  % Reset monospace font to Computer Modern Typewriter
+  \setmonofont{cmtt10}[
+    BoldFont={cmtt10},
+    ItalicFont={cmtt10},
+    BoldItalicFont={cmtt10}
+  ]
+  \renewcommand{\texttt}[1]{{\ttfamily #1}}
+  
+  % Reset URL style
+  \urlstyle{same}
+  
+  % Disable custom inline code box for bibliography
+  \let\texttt\oldtexttt
+}

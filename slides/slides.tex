@@ -1,0 +1,42 @@
+\documentclass[11pt]{beamer}
+\usepackage{settings}
+
+\title{DISTRIBUTION SHIFT}
+\subtitle{A Study on Their Effects on Statistical Models and Strategies for Mitigation}
+\date{}
+\author{Andrea Spinelli, Giacomo Amerio,\\Giovanni Lucarelli, Tommaso Piscitelli}
+\institute{University of Trieste}
+\titlegraphic{\hfill\includegraphics[height=1.5cm]{assets/logo100_orizzontale.pdf}}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Table of contents}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents%[hideallsubsections]
+\end{frame}
+
+\input{chapters/ch1}
+\input{chapters/ch2}
+\input{chapters/ch3}
+\input{chapters/ch4}
+
+% --------------------------------- Question --------------------------------- %
+{\setbeamercolor{palette primary}{fg=black, bg=yellow}
+\begin{frame}[standout]
+  Questions?
+\end{frame}
+}
+
+\appendix
+
+% ------------------------------- Bibliography? ------------------------------ %
+\begin{frame}[allowframebreaks]{References}
+
+  \bibliography{demo}
+  \bibliographystyle{abbrv}
+
+\end{frame}
+
+\end{document}
