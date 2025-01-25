@@ -55,9 +55,9 @@
     \vspace{1em}
     \begin{figure}
         \centering
-        \includegraphics[width=0.45\textwidth]{MeanAUCscoreacross10.png}
+        \includegraphics[width=0.49\textwidth]{MeanAUCscoreacross10.png}
         \hfill
-        \includegraphics[width=0.45\textwidth]{MeanAUCscoreLAST.png}
+        \includegraphics[width=0.49\textwidth]{MeanAUCscoreLAST.png}
     \end{figure}
     
 \end{frame}
@@ -68,35 +68,39 @@
     \begin{columns}[T]
         \begin{column}{0.6\textwidth}
             \begin{itemize}
-                \item \boldsymbol{$H_0$}: $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} = 0$ \\        
-                \item \boldsymbol{$H_1$}: $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} \neq 0$ \\
+                \item $\boldsymbol{H_0}$: $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} = 0$ \\        
+                \item $\boldsymbol{H_1}$: $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} \neq 0$ \\
                 \quad The R.A.W. method improves the AUC score of the Gradient Boosting Classifier.
                 
                 \item \textbf{Test:} Paired t-test on 50 independent $\overline{\text{AUC}}$ differences.
             \end{itemize}
             
-            \vspace{0.5em}
             
-            \begin{table}
-                \centering
-                \small
-                \begin{tabular}{lcccc}
-                    \toprule
-                    & $\Delta\bar{\mu}$ & t-stat & p-value & 95\% CI \\
-                    \midrule
-                    $\Delta\overline{\text{AUC}}$* & 0.0083 & 8.75  & $1.39 \times 10^{-11}$ & [0.006, 0.010] \\
-                    $\Delta\overline{\text{AUC}}_{\text{last}}$** & 0.0235 & 10.59 & $2.86 \times 10^{-14}$ & [0.019, 0.028] \\
-                    \bottomrule
-                \end{tabular}
-            \end{table}
+            
+            
         \end{column}
         
         \begin{column}{0.4\textwidth}
+            \vspace{1em}
             \begin{figure}
+                \centering
                 \includegraphics[width=\textwidth]{meandiffLAST.png}
             \end{figure}
         \end{column}
     \end{columns}
+
+    \begin{table}
+        \centering
+        \small
+        \begin{tabular}{lcccc}
+            \toprule
+            & $\Delta\bar{\mu}$ & t-stat & p-value & 95\% CI \\
+            \midrule
+            $\Delta\overline{\text{AUC}}$* & 0.0083 & 8.75  & $1.39 \times 10^{-11}$ & [0.006, 0.010] \\
+            $\Delta\overline{\text{AUC}}_{\text{last}}$** & 0.0235 & 10.59 & $2.86 \times 10^{-14}$ & [0.019, 0.028] \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
     
     \begin{footnotesize}
         * Mean AUC score difference across all 10 shifted test sets. \\
