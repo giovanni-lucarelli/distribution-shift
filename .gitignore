@@ -357,7 +357,4 @@ TSWLatexianTemp*
 #*Notes.bib
 .DS_Store
 
-/books
-/papers
-
-todo.md
+notes.md
