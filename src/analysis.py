@@ -76,10 +76,10 @@ class ModelEvaluator:
                 plt.plot(fpr, tpr, label=f'Dataset {metrics["dataset_name"]} (AUC = {metrics["auc"]:.3f})')
             
             plt.plot([0, 1], [0, 1], 'k--', lw=2, label="Random Guess")
-            plt.title(f"ROC Curves for {model_name}", fontsize=16)
-            plt.xlabel("False Positive Rate", fontsize=14)
-            plt.ylabel("True Positive Rate", fontsize=14)
-            plt.legend(loc="lower right", fontsize=12)
+            plt.title(f"ROC Curves for {model_name}", fontsize=20)
+            plt.xlabel("False Positive Rate", fontsize=16)
+            plt.ylabel("True Positive Rate", fontsize=16)
+            plt.legend(loc="lower right", fontsize=15)
             plt.grid(alpha=0.5)
             plt.show()
     

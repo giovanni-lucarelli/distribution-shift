@@ -50,7 +50,7 @@
 #     "LogisticRegression" : {},
 # }
 
-#? decision tree classifier
+#? ------------ DTC ------------
 # Define the parameter grid
 dtc_grid = {
     'criterion'         : ['gini', 'entropy', 'log_loss'],
@@ -64,6 +64,25 @@ if GRID_SEARCH:
 else:
     dtc_model = DecisionTreeClassifier(**best_params["DecisionTreeClassifier"])
     dtc_model.fit(X_train, y_train)
+    
+#? ------------ GAM ------------
+    
+    lgam_params = {
+    "terms"     : s(0) + s(1) + s(2) + te(0, 1) + te(0, 2) + te(1, 2),
+    "max_iter"  : 100,
+}
+
+X_train_np = X_train.values  # Convert to NumPy array
+y_train_np = y_train.values  # Convert to NumPy array
+lam_values = [[1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10], [1, 10]]#[0.1, 1, 10, 100], [0.1, 1, 10, 100], [0.1, 1, 10, 100], [0.1, 1, 10, 100]]
+#lam_values = [np.logspace(0, 3, 4) for _ in range(5)]
+
+if GRID_SEARCH:
+    lgam_model = LogisticGAM(**lgam_params).gridsearch(X_train_np, y_train_np, lam=lam_values)
+else:
+    lgam_model = LogisticGAM(**lgam_params).fit(X_train_np, y_train_np)
+    
+#? ------------ Overfitting ------------
 
 if OVERFIT:
 
@@ -148,3 +167,4 @@ if OVERFIT:
     evaluator.plot_roc_curves()
     evaluator.plot_roc_curves_per_dataset()
     evaluator.plot_auc()
+    
