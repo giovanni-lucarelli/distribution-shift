@@ -247,7 +247,8 @@ class MechanisticTrainer(RobustTrainer):
                     # Majority vote per feature
                     grad_signs = np.sign(np.sum(neighbors_grad_signs, axis=0))
                     # Shift x_i accordingly
-                    top_feats_idx = np.argsort(np.abs(grad_signs))[-self.top_k:]
+                    # top_feats_idx = np.argsort(np.abs(grad_signs))[-self.top_k:]
+                    top_feats_idx = self.rng.choice(len(x_i), size=self.top_k, replace=False)
                     for feat_idx in top_feats_idx:
                         x_i[feat_idx] += grad_signs[feat_idx] * self.base_shift_factor
                 
@@ -281,14 +282,15 @@ class MechanisticTrainer(RobustTrainer):
                         gradients.append(grad_est)
 
                     # Pick top_k features by absolute gradient
-                    top_feats_idx = np.argsort(np.abs(gradients))[-self.top_k:]
+                    #top_feats_idx = np.argsort(np.abs(gradients))[-self.top_k:]
 
+                    top_feats_idx = self.rng.choice(len(x_i), size=self.top_k, replace=False)
                     # SHIFT: We want to SHIFT in the direction that *increases* the correct (old) label prob
                     # so if grad_est is positive => increasing feature => higher probability => shift up
                     # if grad_est is negative => decreasing feature => higher probability => shift down
                     
                     for feat_idx in top_feats_idx:
-                        g = gradients[feat_idx]
+                        #g = gradients[feat_idx]
                         direction_sign = self.rng.choice([-1, 1])
                         x_i[feat_idx] += direction_sign * self.base_shift_factor    
                     
