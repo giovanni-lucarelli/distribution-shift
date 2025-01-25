@@ -69,11 +69,11 @@
         \begin{column}{0.59\textwidth}
             \vspace{1em}
             \begin{itemize}
-                \item $\boldsymbol{H_0}$: $\Delta\mu = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} = 0$ \\        
-                \item $\boldsymbol{H_1}$: $\Delta\mu = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} \neq 0$ \\
+                \item $\boldsymbol{H_0}$: $\Delta_{AUC} =  AUC_{\text{R.A.W.}} - AUC_{\text{base}} = 0$ \\        
+                \item $\boldsymbol{H_1}$: $\Delta_{AUC} = AUC_{\text{R.A.W.}} - AUC_{\text{base}} \neq 0$ \\
                 
                 
-                \item \textbf{Test:} Two samples t-test on 50 independent $\Delta\overline{\text{AUC}}$ differences.
+                \item \textbf{Test:} Two samples t-test on 50 independent $\Delta_{AUC}$.
             \end{itemize}
             
             
@@ -95,10 +95,10 @@
         \small
         \begin{tabular}{lcccc}
             \toprule
-            & $\Delta\mu$ & t-stat & p-value & 95\% CI \\
+            & $\Delta_{AUC}$ & t-stat & p-value & 95\% CI \\
             \midrule
-            $\Delta\overline{\text{AUC}}$* & 0.0083 & 8.75  & $1.39 \times 10^{-11}$ & [0.006, 0.010] \\
-            $\Delta\text{AUC}_{\text{last}}$** & 0.0235 & 10.59 & $2.86 \times 10^{-14}$ & [0.019, 0.028] \\
+            $\Delta_{\overline{\text{AUC}}}$* & 0.0083 & 8.75  & $1.39 \times 10^{-11}$ & [0.006, 0.010] \\
+            $\Delta_{\text{AUC}_{\text{last}}}$** & 0.0235 & 10.59 & $2.86 \times 10^{-14}$ & [0.019, 0.028] \\
             \bottomrule
         \end{tabular}
     \end{table}
