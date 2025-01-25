@@ -1,4 +1,4 @@
-# src/robust_training/mechanistic.py
+
 
 from typing import Tuple, Union, Optional
 import numpy as np
@@ -10,7 +10,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
-# Attempt to import pyGAM; handle gracefully if not installed
 try:
     from pygam import LogisticGAM
     PYGAM_AVAILABLE = True
@@ -41,7 +40,7 @@ class MechanisticTrainer(RobustTrainer):
         Magnitude for feature shifting each step. Larger => bigger shifts.
     n_rounds : int, optional
         Number of augmentation rounds.
-    subset_size_fraction : float, optional
+    fraction_to_shift : float, optional
         Fraction of data to augment each round.
     n_grad_steps : int, optional
         Number of gradient-based steps (akin to PGD).
@@ -65,7 +64,7 @@ class MechanisticTrainer(RobustTrainer):
         model_type: str = 'gbc',
         base_shift_factor: float = 0.1,
         n_rounds: int = 1,
-        subset_size_fraction: float = 0.7,
+        fraction_to_shift: float = 0.7,
         n_grad_steps: int = 1,
         top_k: int = 3,
         random_state: int = 42,
@@ -73,15 +72,20 @@ class MechanisticTrainer(RobustTrainer):
         
         val_fraction: float = 0.1,
         eps: float = 0.1,
-        ball: bool = False
+        ball: bool = False, 
+        task: str = 'classification'
     ):
         super().__init__()
+        self.task = task.lower()
+        if self.task not in ['classification', 'regression']:
+            raise ValueError("task must be 'classification' or 'regression'")
+        
         if model_type == 'gam' and not PYGAM_AVAILABLE:
             raise ImportError("pyGAM not installed. Please install or pick another model type.")
         self.model_type = model_type.lower()  # 'gbc', 'tree', 'gam'
         self.base_shift_factor = base_shift_factor
         self.n_rounds = n_rounds
-        self.subset_size_fraction = subset_size_fraction
+        self.fraction_to_shift = fraction_to_shift
         self.n_grad_steps = n_grad_steps
         self.top_k = top_k
         self.random_state = random_state
@@ -101,30 +105,53 @@ class MechanisticTrainer(RobustTrainer):
 
     def _init_model(self, **kwargs):
         """Initialize a fresh model depending on model_type."""
-        if self.model_type == 'tree':
-            self.model = DecisionTreeClassifier(
-                max_depth=10,
-                random_state=self.random_state,
-                **kwargs
-            )
-        elif self.model_type == 'gam':
-            self.model = LogisticGAM(**kwargs)
-        elif self.model_type == 'rfc':
-            self.model = RandomForestClassifier(
-                n_estimators=100,
-                max_depth=10,
-                random_state=self.random_state,
-                **kwargs
-            )
-            
+        
+        if self.task == 'regression':
+            if self.model_type == 'tree':
+                from sklearn.tree import DecisionTreeRegressor
+                self.model = DecisionTreeRegressor(
+                    max_depth=5,
+                    random_state=self.random_state,
+                    **kwargs
+                )
+            elif self.model_type == 'gbr':
+                from sklearn.ensemble import GradientBoostingRegressor
+                self.model = GradientBoostingRegressor(
+                    n_estimators=100,
+                    learning_rate=0.05,
+                    max_depth=5,
+                    random_state=self.random_state,
+                    **kwargs
+                )
+            else:
+                raise ValueError(f"Unsupported regression model type: {self.model_type}")
         else:
-            self.model = GradientBoostingClassifier(
-                n_estimators=100,
-                learning_rate=0.05,
-                max_depth=4,
-                random_state=self.random_state,
-                **kwargs
-            )
+        
+        
+            if self.model_type == 'tree':
+                self.model = DecisionTreeClassifier(
+                    max_depth=10,
+                    random_state=self.random_state,
+                    **kwargs
+                )
+            elif self.model_type == 'gam':
+                self.model = LogisticGAM(**kwargs)
+            elif self.model_type == 'rfc':
+                self.model = RandomForestClassifier(
+                    n_estimators=100,
+                    max_depth=10,
+                    random_state=self.random_state,
+                    **kwargs
+                )
+                
+            else:
+                self.model = GradientBoostingClassifier(
+                    n_estimators=100,
+                    learning_rate=0.05,
+                    max_depth=3,
+                    random_state=self.random_state,
+                    **kwargs
+                )
 
     def _predict_proba_for_label(self, X_sample: np.ndarray, label: int) -> float:
         """
@@ -132,20 +159,30 @@ class MechanisticTrainer(RobustTrainer):
         If the model doesn't support predict_proba, fallback to a 0-1 guess.
         """
         X_sample_2d = X_sample.reshape(1, -1)
-        if hasattr(self.model, "predict_proba") and callable(self.model.predict_proba):
-            probs = self.model.predict_proba(X_sample_2d)[0]
-            
-            # If binary => probs is [p(class=0), p(class=1)].
-            # If multiclass => we index by the label integer.
-            if len(probs) <= label:
-                return 0.0  # fallback
-            return probs[label]   # return the probability of the correct label
-            
-        else:
-            # Fallback to predict
+        
+        if self.task == 'regression':
+            # For regression, return negative MSE
             pred = self.model.predict(X_sample_2d)[0]
-            
-            return float(pred == label)
+            return -((pred - label) ** 2)
+        else:
+        
+        
+        
+            if hasattr(self.model, "predict_proba") and callable(self.model.predict_proba):
+                probs = self.model.predict_proba(X_sample_2d)[0]
+                
+                # If binary => probs is [p(class=0), p(class=1)].
+                # If multiclass => we index by the label integer.
+                if len(probs) <= label:
+                    
+                    return 0.0  # fallback
+                return probs[label]   # return the probability of the correct (old) label
+                
+            else:
+                # Fallback to predict
+                pred = self.model.predict(X_sample_2d)[0]
+                
+                return float(pred == label)
 
     def augment_data(self, X: pd.DataFrame, y: pd.Series) -> Tuple[pd.DataFrame, pd.Series, np.ndarray]:
         """
@@ -162,8 +199,8 @@ class MechanisticTrainer(RobustTrainer):
         print(f"  => Augmenting {n_samples} samples.")
         
 
-        # We'll select a fraction of samples to shift
-        n_to_shift = int(n_samples * self.subset_size_fraction)
+        #selecting proportion of data to shift
+        n_to_shift = int(n_samples * self.fraction_to_shift)
         if n_to_shift == 0:
             # If fraction is too small or data is too small
             return X_aug, y_aug
@@ -176,16 +213,16 @@ class MechanisticTrainer(RobustTrainer):
 
             
 
-            # Perform n_grad_steps small gradient-based shifts
+            # Perform n_grad_steps  gradient-based shifts
             for _ in range(self.n_grad_steps):
                 # Estimate gradient wrt the correct label
-                # We'll do a small +/- step on each feature
+                
                 gradients = []
                 eps = self.eps
                 
                 if self.ball:
-                    print("Ball")
-                    TOT = 3
+                    
+                    TOT = 5
                     # We’ll use a simple distance measure here
                     distances = np.linalg.norm(X_aug.values - x_i, axis=1)
                     nn_indices = np.argsort(distances)[:TOT]
@@ -210,7 +247,8 @@ class MechanisticTrainer(RobustTrainer):
                     # Majority vote per feature
                     grad_signs = np.sign(np.sum(neighbors_grad_signs, axis=0))
                     # Shift x_i accordingly
-                    top_feats_idx = np.argsort(np.abs(grad_signs))[-self.top_k:]
+                    # top_feats_idx = np.argsort(np.abs(grad_signs))[-self.top_k:]
+                    top_feats_idx = self.rng.choice(len(x_i), size=self.top_k, replace=False)
                     for feat_idx in top_feats_idx:
                         x_i[feat_idx] += grad_signs[feat_idx] * self.base_shift_factor
                 
@@ -231,6 +269,7 @@ class MechanisticTrainer(RobustTrainer):
                 
                 else:
                     for feat_idx in range(len(x_i)):
+                        
                         x_pos = x_i.copy()
                         x_neg = x_i.copy()
                         x_pos[feat_idx] += eps
@@ -243,27 +282,31 @@ class MechanisticTrainer(RobustTrainer):
                         gradients.append(grad_est)
 
                     # Pick top_k features by absolute gradient
-                    top_feats_idx = np.argsort(np.abs(gradients))[-self.top_k:]
+                    #top_feats_idx = np.argsort(np.abs(gradients))[-self.top_k:]
 
-                    # SHIFT: We want to SHIFT in the direction that *increases* the correct label prob
+                    top_feats_idx = self.rng.choice(len(x_i), size=self.top_k, replace=False)
+                    # SHIFT: We want to SHIFT in the direction that *increases* the correct (old) label prob
                     # so if grad_est is positive => increasing feature => higher probability => shift up
                     # if grad_est is negative => decreasing feature => higher probability => shift down
+                    
                     for feat_idx in top_feats_idx:
-                        g = gradients[feat_idx]
-                        direction_sign = 1 if g > 0 else -1
-                        x_i[feat_idx] += direction_sign * self.base_shift_factor
-
-            # Add random Gaussian noise to the final x_i
+                        #g = gradients[feat_idx]
+                        direction_sign = self.rng.choice([-1, 1])
+                        x_i[feat_idx] += direction_sign * self.base_shift_factor    
+                    
+            
             noise = self.rng.normal(0, self.noise_scale, size=len(x_i))
             x_i += noise
 
-            # Clip to global min/max to avoid out-of-bound expansions
-            #col_mins = X_aug.min().values
-            #col_maxs = X_aug.max().values
-            #x_i = np.clip(x_i, col_mins, col_maxs)
+            # # Clip to global min/max to avoid out-of-bound expansions
+            # if self.task == 'regression':
+                
+            #     col_mins = X_aug.min().values
+            #     col_maxs = X_aug.max().values
+            #     x_i = np.clip(x_i, col_mins, col_maxs)
             
 
-            # Store the final x_i back
+            
             X_aug.iloc[idx] = x_i
 
         return X_aug, y_aug
@@ -279,7 +322,7 @@ class MechanisticTrainer(RobustTrainer):
         3) Final downsample to original size and fit
         """
         self.rng = np.random.RandomState(self.random_state)
-        original_size = len(X)  # Track original dataset size
+        original_size = len(X) # Track original dataset size
 
         # 1) Initialize model if not provided externally
         if self.model is None:
@@ -289,7 +332,7 @@ class MechanisticTrainer(RobustTrainer):
         print("[MechanisticTrainer] Initial fit on full dataset.")
         self.model.fit(X, y)
 
-        # Keep an "augmented" pool starting with full data
+        
         X_aug = X.copy()
         y_aug = y.copy()
 
@@ -322,3 +365,5 @@ class MechanisticTrainer(RobustTrainer):
         self.y_final = y_final
 
         print("[MechanisticTrainer] Robust model training completed.\n")
+
+
