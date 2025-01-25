@@ -35,33 +35,11 @@
         
         \vline\hspace{1em} 
         
-        % Second Column: Algorithm
-        \begin{column}{0.60\textwidth}
-            \begin{algorithm}[H]
-                \setstretch{1.2}
-                \caption{R.A.W. Pre-Processing Algorithm}
-                \begin{algorithmic}[1]
-                    \State \textbf{Input:} $Data_{\text{train}}$, $Size$, $N$, $\varepsilon$.
-                    
-                    \State $Data_{\%} \gets$ random subset of $N\%$ of $Data_{\text{train}}$
-                    
-                    \For{each $x_i$ in $Data_{\%}$}
-                        \State $x_i' \gets$
-                        \Statex \quad 
-                        $\begin{cases}
-                            x_i + \varepsilon & \text{with probability } 0.5 \\
-                            x_i - \varepsilon & \text{with probability } 0.5
-                        \end{cases}$
-                        \State $y_i' \gets y_i$
-                    \EndFor
-                    
-                    \State $Data_{\text{aug}} \gets Data_{\text{new}} \cup Data_{\%}$
-                    
-                    \State $Data_{\text{final}} \gets \text{Downsample}(Data_{\text{aug}}, Size)$
-                    
-                    \State \textbf{Return} $Data_{\text{final}}$
-                \end{algorithmic}
-            \end{algorithm}
+        \begin{figure}
+            
+            \includegraphics[width=0.45\textwidth]{algo.png}
+            
+        \end{figure}
         \end{column}
     \end{columns}
 \end{frame}
