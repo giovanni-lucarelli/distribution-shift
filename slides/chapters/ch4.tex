@@ -22,22 +22,22 @@
 
 \begin{frame}{The R.A.W. Method}
     \begin{columns}[T]
-        
-        \begin{column}{0.35\textwidth}
-            \begin{block}{R.A.W.}
+
+        \begin{column}{0.45\textwidth}
+            \vspace{2em} 
                 \begin{itemize}\LARGE
                     \item \textbf{R}andom
                     \item \textbf{A}ugmentation
                     \item \textbf{W}alk
                 \end{itemize}
-            \end{block}
+   
         \end{column}
         
         \vline\hspace{1em} 
-        
+        \begin{column}{0.55\textwidth}
         \begin{figure}
             
-            \includegraphics[width=0.45\textwidth]{algo.png}
+            \includegraphics[width=\textwidth]{algo.png}
             
         \end{figure}
         \end{column}
@@ -46,11 +46,11 @@
 
 
 \begin{frame}{Classify With Gradient Boosting Using R.A.W.}
-    \begin{itemize}
-        \item **Step 1:** Apply the R.A.W. pre-processing method to the training data to address covariate shift.
-        \item **Step 2:** Train a Gradient Boosting Classifier on the augmented dataset.
-        \item **Step 3:** Evaluate the model's performance on shifted test sets.
-    \end{itemize}
+    \begin{enumerate}
+        \item  Apply the R.A.W. pre-processing method to the training data to address covariate shift.
+        \item  Train a Gradient Boosting Classifier on the augmented dataset.
+        \item  Evaluate the model's performance on shifted test sets.
+    \end{enumerate}
     
     \vspace{1em}
     \begin{figure}
@@ -66,9 +66,7 @@
 
 \begin{frame}{A Statistical Analysis Of The Results}
     \begin{itemize}
-        \item \textbf{Null Hypothesis ($H_0$):} $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} = 0$ \\
-        \quad The R.A.W. method does not improve the AUC score of the Gradient Boosting Classifier.
-        
+        \item \textbf{Null Hypothesis ($H_0$):} $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} = 0$ \\        
         \item \textbf{Alternative Hypothesis ($H_1$):} $\Delta\bar{\mu} = \overline{\text{AUC}}_{\text{R.A.W.}} - \overline{\text{AUC}}_{\text{base}} \neq 0$ \\
         \quad The R.A.W. method improves the AUC score of the Gradient Boosting Classifier.
         
@@ -88,11 +86,8 @@
             $\Delta\overline{\text{AUC}}_{\text{last}}$** & 0.0235 & 10.59 & $2.86 \times 10^{-14}$ & [0.019, 0.028] \\
             \bottomrule
         \end{tabular}
-        \caption{Statistical Test Results}
-        \label{tab:stat_results}
+        
     \end{table}
-    
-    \vspace{0.5em}
     
     \begin{footnotesize}
         * Mean AUC score difference across all 10 shifted test sets. \\
