@@ -160,7 +160,7 @@
     To give statistical support to our study we repeated this experiment $R = 50$ times. Keeping always the same training set (in order to not train the models several times), for each repetition we:
     \begin{enumerate}
         \item defined a new shifted ditribution $\mathcal{N}(\boldsymbol{\mu}_{\text{shift}}, \boldsymbol{\Sigma}_{\text{shift}}) $
-        \item created 11 \textbf{testing} datasets $\mathcal{D}_\alpha$ with $\alpha \in \{0.0, 0.1, \ldots, 1.0\}$, where $\alpha$ represents the misture mixing probability
+        \item created 11 \textbf{testing} datasets $\mathcal{D}_\alpha$ with $\alpha \in \{0.0, 0.1, \ldots, 1.0\}$, where $\alpha$ represents the mixing probability as before
         \item computed the ROC-AUC score for each model on each testing dataset
     \end{enumerate}
 \end{frame}
