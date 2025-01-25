@@ -53,59 +53,6 @@ best_params = {
     }
 }
 
-# #? overfitting params
-# best_params = {
-#     "LogisticGAM" : {
-#         "max_iter": 1000,
-#         "n_splines": 10,
-#         "lam": 0.6
-#     },
-#     "DecisionTreeClassifier" : {
-#         'criterion': 'gini',
-#         'max_depth': 14,
-#         'min_samples_leaf': 10,
-#         'splitter': 'best'
-#     },
-#     "GradientBoostingClassifier" : {
-#         'learning_rate': 0.025,
-#         'max_depth': 8,
-#         'max_features': None,
-#         'n_estimators': 165,
-#         'subsample': 0.7
-#     },
-#     "RandomForestClassifier" : {
-#         'criterion': 'gini', 
-#         'max_depth': 12, 
-#         'min_samples_leaf': 2, 
-#         'min_samples_split': 10,
-#         'n_estimators': 175,
-#         'random_state': 0
-#     },
-#     "XGBoost" : {
-#         'learning_rate': 0.03,
-#         'max_depth': 0,
-#         'n_estimators': 200,
-#         'subsample': 0.7
-#     },
-#     "LogisticRegression" : {
-#         'C': 10,
-#         'max_iter': 500,
-#         'penalty': 'l1',
-#         'solver': 'liblinear'
-#     }
-# }
-
-# #? vanilla params
-# best_params = {
-#     "LogisticGAM" : {},
-#     "DecisionTreeClassifier" : {},
-#     "GradientBoostingClassifier" : {},
-#     "RandomForestClassifier" : {},
-#     "XGBoost" : {},
-#     "LogisticRegression" : {},
-# }
-
-
 def grid_search_cv(estimator, param_grid, X_train, y_train, cv=5, scoring="roc_auc", n_jobs=-1, verbose=1):
 
     # Initialize GridSearchCV

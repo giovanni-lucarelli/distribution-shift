@@ -16,7 +16,7 @@ The target variable $Y$ is a binary variable with values in $\{0, 1\}$. It was g
 \end{figure}
 
 \section{Testing Data Generation}
-A fully shifted test dataset was generated from a new multivariate normal distribution $\mathcal{N}(\boldsymbol{\mu}_{0.05}, \boldsymbol{\Sigma}_s)$. Here, $\boldsymbol{\mu}_{0.05}$ represents a mean vector centered at the 5th percentile of the original $\boldsymbol{\mu}$, and $\boldsymbol{\Sigma}_s$ is a covariance matrix distinct from $\boldsymbol{\Sigma}$. This shift was deliberately designed to focus on a region of the sample space with limited representation in the training data, thereby introducing a significant covariate distribution shift. The target variable $Y$ for this dataset was generated in the same manner as in the training dataset.
+A fully shifted test dataset was generated from a new multivariate normal distribution $\mathcal{N}(\boldsymbol{\mu}_{0.05}, \boldsymbol{\Sigma}_s)$. Here, $\boldsymbol{\mu}_{0.05}$ represents a mean vector centered at the 5th percentile of each feature of the training set $\boldsymbol{\X}_\text{train}$, and $\boldsymbol{\Sigma}_s$ is a new covariance matrix distinct from $\boldsymbol{\Sigma}$ and such that $[\boldsymbol{\Sigma}]_{i,j}$ sampled from $\mathcal{U}_{[-0.5, 0.5]}$. This shift was deliberately designed to focus on a smaller region of the sample space centered in a point with limited representation in the training data, thereby introducing a significant covariate shift. The target variable $Y$ for this dataset was generated in the same manner as in the training dataset.
 
 \begin{figure}[H]
     \centering

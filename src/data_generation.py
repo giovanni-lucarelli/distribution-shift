@@ -2,6 +2,8 @@ import numpy as np
 from scipy.stats import multivariate_normal, bernoulli
 from itertools import combinations_with_replacement
 
+np.random.seed(0)
+
 # Attribute generation functions
 
 def attributes_quantile(df, probability):

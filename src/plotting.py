@@ -1,8 +1,8 @@
-import os
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+np.random.seed(0)
 
 def visualize_feature_shifts(
     df_dict: dict,
