@@ -35,16 +35,16 @@ This method is based on the idea of \textbf{Data Augmentation}. Instead of using
 \begin{algorithm}[H]
     
         \begin{algorithmic}[1]
-            \STATE \textbf{Input:} $Data_{\text{train}}$, $Size$, $N$, $\varepsilon$.\\[0.5em]
+            \STATE \textbf{Input:} $Data_{\text{train}}$, $Size$, $N$, $\varepsilon$.\\
          
-            \State $Data_{\%}$ \leftarrow $random subset of N\% of Data_{train}$\\[0.5em]
-                \textbf{For} $x_i$ in Data_{\%}\\[0.5em]
+            \State $Data_{\%}$ \leftarrow $random subset of N\% of Data_{train}$\\
+                \textbf{For} $x_i$ in Data_{\%}\\
                     \State \phantom{mm} $x_i' \leftarrow 
                     \begin{cases}
                         X_i + \varepsilon & \text{with probability } 0.5 \\
                         X_i - \varepsilon & \text{with probability } 0.5
-                    \end{cases}$\\[0.5em]
-                    \State \phantom{mm} $y_i' \leftarrow y_i$\\[0.5em]
+                    \end{cases}$\\
+                    \State \phantom{mm} $y_i' \leftarrow y_i$\\
                 \textbf{End For}\\
                 \State $Data_\text{aug}$ \leftarrow $Data_{train} \cup Data_{\%}$\\
                 \State $Data_\text{final}$ \leftarrow $Downsample(Data_\text{aug}, Size)$\\
@@ -99,7 +99,7 @@ The test sets are generated in the same way as the training set, but with the fo
 \end{itemize}
 Each model is evaluated on 11 distinct test sets, where each test set is generated with a varying percentage of shifted data points, representing different statistical mixtures.
 
-The models' performance is simulated and assessed across 50 instances of 11 distinct statistical mixtures, ensuring a sufficient number of trials to rigorously validate significance using two samples Student's t-Test.
+The models' performance is simulated and assessed across 50 instances of 11 distinct statistical mixtures, ensuring a sufficient number of trials to rigorously validate significance using Student's t-Test.
 
 \subsubsection{Applying R.A.W. to Gradient Boosting Classifier}
 
@@ -158,6 +158,119 @@ Two instances of the same model are trained with and without the Random Augmenta
 
 \subsubsection{\textbf{Classification Task}}
 
+
+Since the R.A.W. method is a stochastic process, we conducted simulations across 50 different instances of 11 distinct statistical mixtures, the boxplot below shows the AUC scores of the baseline and augmented models averaged across all shifts.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/MeanAUCscoreacross10.png} 
+    \caption{\textbf{Model Performance over Shifted Test Sets.}}
+\end{figure}
+
+To test the significance of the improvement, we conducted a Student's t-Test. The null hypothesis $\boldsymbol{H_0}$ is that the difference between the averaged AUC scores of model with and without R.A.W. is zero. The alternative hypothesis $\boldsymbol{H_1}$ is that this difference is not zero. The results of the t-Test are shown in the table below:
+
+\begin{table}
+    \centering
+    
+    \begin{tabular}{lcccc}
+        \toprule
+        & $\Delta_{AUC}$ & t-stat & p-value & 95\% CI \\
+        \midrule
+        $\Delta_{\overline{\text{AUC}}}$ & 0.0083 & 8.75  & $1.39 \times 10^{-11}$ & [0.006, 0.010] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Although the improvement is relatively small, the t-Test results show that the improvement is statistically significant.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/diffAUC10.png} 
+    \caption{\textbf{50 AUC score differences between the baseline and augmented models.}Note that the difference is computed on the average AUC score across 11 test sets.}
+\end{figure}
+
+
+During the experiment, we also observed that the improvement in the model's performance is more pronounced when evaluated on the most shifted test set, i.e. the statistical mixture which does not include any datapoints from the non-shifted dataset:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/MeanAUCscoreLAST.png} 
+    \caption{\textbf{Model Performances on the Most Shifted Test Set.}}
+
+A second t-Test was conducted on the differences in AUC scores in the 50 instances of this last test set:
+
+
+\begin{table}
+    \centering
+    
+    \begin{tabular}{lcccc}
+        \toprule
+        & $\Delta_{AUC}$ & t-stat & p-value & 95\% CI \\
+        \midrule
+        $\Delta_{\text{AUC}_{\text{last}}}$ & 0.0235 & 10.59 & $2.86 \times 10^{-14}$ & [0.019, 0.028] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The results highlight an increased improvement in the augmented model's performance when evaluated on the most shifted (and thus difficult) test set. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/meandiffLAST.png} 
+    \caption{\textbf{50 AUC score differences between the baseline and augmented models.}Note that the difference is computed on the AUC score of the last test set.}
+
+\end
+
+
+
+Lastly, we ran other 50 iterations of the experiment, this time we defined the covariance matrix used in the generation of the shifted sets as:
+
+\begin{equation}
+    $ [\boldsymbol{\Sigma}_{\text{shift}}]_{i,j} \sim \mathcal{U}_{[-0.75,0.75]} $ for $ i, j = 1, 2, 3 $
+\end{equation}
+
+Effectively increasing the range of the Uniform distribution used to generate the covariance matrix. The results of this experiment are shown in the figure below:
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/1_075.png}
+       
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/2_075.png}
+       
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/3_075.png}
+        
+    \end{subfigure}
+    \begin{subfigure}{.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/4_075.png}
+        
+    \end{subfigure}
+    \caption{\textbf{Model Performance with Increased Covariance Matrix shift.} Results when increasing the range of the uniform distribution used to generate the covariance matrix of shifted test sets. Note that the quantities of the y-axis are the same as the ones in the last experiment.}
+\end{figure}
+
+
+The results show that the improvement in the model's performance is more pronounced when the range of values in the covariance matrix is allowed to be large.
+We conducted the same t-Tests as before, and the results are shown in the table below:
+
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{lcccc}
+        \toprule
+        & $\Delta_{AUC}$ & t-stat & p-value & 95\% CI \\
+        \midrule
+        $\Delta_{\overline{\text{AUC}}}$ & 0.0135 & 9.2261  & $2.71 \times 10^{-12}$ & [0.011, 0.016] \\
+        $\Delta_{\text{AUC}_{\text{last}}}$ & 0.0358 & 10.21 & $1.01 \times 10^{-13}$ & [0.029, 0.043] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 
 
