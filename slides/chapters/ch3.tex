@@ -23,10 +23,30 @@
 
 \begin{frame}{Logistic Regression}
 
-    \textbf{Logistic Regression} is a simple linear model used for binary classification.
+  Below are summarized the coefficients, significance (\textit{P>|z|}), and confidence intervals for the logistic regression baseline model.
 
+    \begin{table}[H]
+      \small
+      \centering
+      \begin{tabular}{lrrrrrr}
+        \toprule
+        & \textbf{coef} & \textbf{std err} & \textbf{z} & \textbf{P>|z|} & \textbf{[0.025} & \textbf{0.975]} \\
+        \midrule
+        \textbf{Intercept} & \sigcoef{-0.9761} & 0.122 & -8.022 & 0.000 & -1.215 & -0.738 \\
+        \textbf{X1}        & \sigcoef{-0.6550} & 0.120 & -5.462 & 0.000 & -0.890 & -0.420 \\
+        \textbf{X2}        & -0.2049 & 0.180 & -1.139 & 0.255 & -0.558 & 0.148 \\
+        \textbf{X1:X2}     & \sigcoef{-0.2653} & 0.125 & -2.118 & 0.034 & -0.511 & -0.020 \\
+        \textbf{X3}        & \sigcoef{1.3187}  & 0.115 & 11.478 & 0.000 & 1.094  & 1.544 \\
+        \textbf{X1:X3}     & \sigcoef{1.3248}  & 0.106 & 12.453 & 0.000 & 1.116  & 1.533 \\
+        \textbf{X2:X3}     & -0.3253 & 0.172 & -1.894 & 0.058 & -0.662 & -0.011 \\
+        \textbf{X1:X2:X3}  & 0.0510  & 0.120 & 0.427  & 0.670 & -0.183 & 0.285 \\
+        \bottomrule
+      \end{tabular}
+      \label{tab:regression_results}
+    \end{table}
+    \small
     $$
-    \text{TODO}
+    \log\left(\dfrac{p}{1-p}\right) = \sigma(-0.976 - 0.655 \cdot X_1 - 0.265 \cdot X_1X_2 + 1.319 \cdot X_3 + 1.325 \cdot X_1X_3)
     $$
 
 \end{frame}
@@ -153,11 +173,17 @@
         \includegraphics[width=\textwidth]{auc_comp.png}
     \end{figure}
 
+    \small
+
+    The figure illustrates how model performance (AUC) decreases as \ \alpha \ increases, reflecting greater covariate shift.
+
+    Ensemble models demonstrate higher robustness compared to the Logistic Regression baseline.
+
 \end{frame}
 
 \begin{frame}{Statistical Performance Comparison}
 
-    To give statistical support to our study we repeated this experiment $R = 50$ times. Keeping always the same training set (in order to not train the models several times), for each repetition we:
+    To give statistical support to our study we repeated this experiment $N = 50$ times. Keeping always the same training set (in order to not train the models several times), for each repetition we:
     \begin{enumerate}
         \item defined a new shifted ditribution $\mathcal{N}(\boldsymbol{\mu}_{\text{shift}}, \boldsymbol{\Sigma}_{\text{shift}}) $
         \item created 11 \textbf{testing} datasets $\mathcal{D}_\alpha$ with $\alpha \in \{0.0, 0.1, \ldots, 1.0\}$, where $\alpha$ represents the mixing probability as before
@@ -167,10 +193,20 @@
 
 \begin{frame}{Statistical Performance Comparison}
 
+  \begin{figure}
+      \centering
+      \vfill
+      \includegraphics[width=\textwidth]{mean_boxplot.png}
+  \end{figure}
+
+\end{frame}
+
+\begin{frame}{Statistical Performance Comparison}
+
     \begin{figure}
         \centering
         \vfill
-        \includegraphics[width=0.8\textwidth]{boxplot.png}
+        \includegraphics[width=\textwidth]{boxplot.png}
     \end{figure}
 
 \end{frame}

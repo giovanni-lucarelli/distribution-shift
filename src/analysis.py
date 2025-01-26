@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import patsy
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, roc_curve
 from src.robust_training import adversarial
 from src.robust_training.adversarial import AdversarialTrainer
@@ -8,12 +9,13 @@ from src.robust_training.adversarial import AdversarialTrainer
 np.random.seed(0)
 
 def pred_proba_1d(model, X: pd.DataFrame) -> pd.DataFrame:
+    X_copy = X.copy()
     if hasattr(model, "predict_proba"):
-        y_pred_proba = model.predict_proba(X)
+        y_pred_proba = model.predict_proba(X_copy)
         if y_pred_proba.ndim == 2:
             y_pred_proba = y_pred_proba[:, 1]                   
     else:
-        y_pred_proba = model.predict(X)
+        y_pred_proba = model.predict(X_copy)
     return y_pred_proba
 
 class ModelEvaluator:
@@ -43,25 +45,26 @@ class ModelEvaluator:
         """
         for model_name, model in self.models.items():
             self.results[model_name] = {}
-            for i, (dataset_name,X_test, y_test) in enumerate(self.test_datasets):
-                y_pred = model.predict(X_test)
+            for i, (dataset_name,X, y) in enumerate(self.test_datasets):
+                X_test, y_test = X.copy(), y.copy()
+                if model.__class__.__name__ == "BinaryResultsWrapper":
+                    X_tmp = X_test.copy()
+                    X_tmp['Y'] = y_test
+                    y_test, X_test = patsy.dmatrices('Y ~ X1 * X2 * X3', data=X_tmp, return_type='dataframe')
+                
                 y_pred_proba = pred_proba_1d(model, X_test)
                 
-                acc = accuracy_score(y_test, y_pred)
-                f1 = f1_score(y_test, y_pred)
                 auc = roc_auc_score(y_test, y_pred_proba)
                 
                 self.results[model_name][i] = {
                     "dataset_name": dataset_name,
-                    "accuracy": acc,
-                    "f1": f1,
                     "auc": auc,
                     "y_test": y_test,
                     "y_pred_proba": y_pred_proba
                 }
                 
                 if show_metrics:
-                    print(f"{model_name}:\tAccuracy: {acc:.3f}, F1: {f1:.3f}, AUC: {auc:.3f}")
+                    print(f"{model_name}:\tAUC: {auc:.3f}")
                     print("---------------------------------------------------")
         return self.results
     
@@ -124,10 +127,14 @@ class ModelEvaluator:
             auc = [metrics["auc"] for metrics in datasets.values()]
             plt.plot(dataset_names, auc, marker='o', label=model_name)
         
-        plt.title("ROC AUC for Each Model on Different Test Sets", fontsize=16)
-        plt.xlabel("Test Set", fontsize=14)
-        plt.ylabel("AUC", fontsize=14)
-        plt.legend(loc="best", fontsize=12)
+        # set x ticks with sensibility 0.1
+        xticks = [round(x / 10, 1) for x in range(11)]
+        plt.xticks(ticks=xticks, labels=[f"{x:.1f}" for x in xticks])
+        
+        plt.title("ROC AUC for Each Model on Different Test Sets", fontsize=25)
+        plt.xlabel("Test Set", fontsize=16)
+        plt.ylabel("AUC", fontsize=16)
+        plt.legend(loc="best", fontsize=16)
         plt.grid(alpha=0.5)
         plt.tight_layout()
         plt.show()
