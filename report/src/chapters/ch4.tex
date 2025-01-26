@@ -90,49 +90,6 @@ The results in the next session were obtained by training two instances of the s
     \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 80\%. Meanwhile $\varepsilon$ controls the magnitude of shifts considered in training (set to 0.05 in this experiment).
 \end{itemize}
 
-
-
-
-
-
-\subsection{Regression Task}
-
-A 1-dimensional regression problem is considered to evaluate the performance of the Random Augmentation Walk method. The experiment is conducted as follows:
-
-\subsubsection{Training Set}
-The training set consists of 10,000 data points generated with $x$ values linearly spaced between -3 and 3, and $y$ values generated with the following formula:
-\begin{equation}
-    y = \sin(x)\exp(-x^2) + \varsigma
-\end{equation}
-
-Where $\varsigma$ is a random noise term drawn from a normal distribution with mean 0 and standard deviation 0.1.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{assets/fit_on_train.png} 
-    \caption{\textbf{Baseline and augmented models fit on the training data} To note that the augmented model has a \textbf{looser fit} on the training data.}
-    \label{fig:fit-train}
-\end{figure}
-
-\subsubsection{Test Sets}
-Thirty test sets are created by shifting the $x$ values by factors ranging from 1.5 to 5.5. Each shifted test set is generated independently using the same underlying function and noise process as the training data.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{assets/reg_shift_plot.png} 
-    \caption{\textbf{A handful of test sets depicted together with the training set}}
-    \label{fig:reg-shift-plot}
-\end{figure}
-
-\subsubsection{Models}
-Two instances of the same model are trained with and without the Random Augmentation Walk method. The models are configured as follows:
-\begin{itemize}
-    \item \textbf{Baseline Model}: A Gradient Boosting Regressor (GBR) is employed as a baseline model. The GBR is configured with the following hyperparameters: \plaintt{n\_estimators=100, max\_depth=5, learning\_rate=0.05}.
-    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 40\%. Meanwhile the $\varepsilon$ which controls the magnitude of shifts considered in training is set to 1.
-\end{itemize}
-
-
-
-
 \subsection{Classification Results}
 
 
@@ -249,8 +206,40 @@ We conducted the same t-Tests as before, and the results are shown in the table 
 
 
 
+\subsection{Regression Task}
 
+A 1-dimensional regression problem is considered to evaluate the performance of the Random Augmentation Walk method. The experiment is conducted as follows:
 
+\subsubsection{Training Set}
+The training set consists of 10,000 data points generated with $x$ values linearly spaced between -3 and 3, and $y$ values generated with the following formula:
+\begin{equation}
+    y = \sin(x)\exp(-x^2) + \varsigma
+\end{equation}
+
+Where $\varsigma$ is a random noise term drawn from a normal distribution with mean 0 and standard deviation 0.1.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/fit_on_train.png} 
+    \caption{\textbf{Baseline and augmented models fit on the training data} To note that the augmented model has a \textbf{looser fit} on the training data.}
+    \label{fig:fit-train}
+\end{figure}
+
+\subsubsection{Test Sets}
+Thirty test sets are created by shifting the $x$ values by factors ranging from 1.5 to 5.5. Each shifted test set is generated independently using the same underlying function and noise process as the training data.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/reg_shift_plot.png} 
+    \caption{\textbf{A handful of test sets depicted together with the training set}}
+    \label{fig:reg-shift-plot}
+\end{figure}
+
+\subsubsection{Models}
+Two instances of the same model are trained with and without the Random Augmentation Walk method. The models are configured as follows:
+\begin{itemize}
+    \item \textbf{Baseline Model}: A Gradient Boosting Regressor (GBR) is employed as a baseline model. The GBR is configured with the following hyperparameters: \plaintt{n\_estimators=100, max\_depth=5, learning\_rate=0.05}.
+    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 40\%. Meanwhile the $\varepsilon$ which controls the magnitude of shifts considered in training is set to 1.
+\end{itemize}
 
 
 \subsection{Regression Results}
