@@ -11,9 +11,9 @@ This method is based on the idea of \textbf{Data Augmentation}. Instead of using
 % \begin{algorithm}[H]
 %     \caption{Random Augmentation Walk}
 %     \begin{algorithmic}[1]
-%         \Statex \textbf{Input:} $Data_\text{train}$,$Size$, $N$, $\varepsilon$
-%         \Statex \textbf{Output:} $Data_\text{final}$
-%         \Statex
+%         \vspace{0.6em} \textbf{Input:} $Data_\text{train}$,$Size$, $N$, $\varepsilon$
+%         \vspace{0.6em} \textbf{Output:} $Data_\text{final}$
+%         \vspace{0.6em}
 %         \State $Size$ \leftarrow $len(Data)$ 
 %         \State $Data_\text{new}$ \leftarrow $Data$
 %         \State $Data_\text{tr}$ \leftarrow random subset of $N\%$ of $Data$
@@ -29,28 +29,29 @@ This method is based on the idea of \textbf{Data Augmentation}. Instead of using
 %         \State $Data_\text{aug} \leftarrow Downsample(Data_\text{aug}, Size)$
 %         \State\Return $Data_\text{aug}$
 %     \end{algorithmic}
-% \end{algorithm}
-
-
 \begin{algorithm}[H]
-    
-        \begin{algorithmic}[1]
-            \STATE \textbf{Input:} $Data_{\text{train}}$, $Size$, $N$, $\varepsilon$.\\[0.5em]
-         
-            \State $Data_{\%}$ \leftarrow $random subset of N\% of Data_{train}$\\[0.5em]
-                \textbf{For} $x_i$ in Data_{\%}\\[0.5em]
-                    \State \phantom{mm} $x_i' \leftarrow 
-                    \begin{cases}
-                        X_i + \varepsilon & \text{with probability } 0.5 \\
-                        X_i - \varepsilon & \text{with probability } 0.5
-                    \end{cases}$\\[0.5em]
-                    \State \phantom{mm} $y_i' \leftarrow y_i$\\[0.5em]
-                \textbf{End For}\\
-                \State $Data_\text{aug}$ \leftarrow $Data_{train} \cup Data_{\%}$\\
-                \State $Data_\text{final}$ \leftarrow $Downsample(Data_\text{aug}, Size)$\\
-            \STATE \textbf{Return} $Data_{\text{final}}$
-        \end{algorithmic}
-        \caption{Let $Data_{\text{train}}$ represent the training dataset, $\text{Size}$ denote the size of $Data_{\text{train}}$ , $N$ specify the percentage of data to be augmented, and $\varepsilon$ define the magnitude of the applied shift. Since excessively large or domain-irrelevant shifts can degrade performance, the parameter $\varepsilon$ is a constant determined a posteriori through a grid search over a predefined range of possible values. The direction of the shift is randomly selected.}
+    \vspace{0.6em}
+    \textbf{Input:} $Data_{\text{train}}$, $Size$, $N$, $\varepsilon$
+    \vspace{0.6em}
+    \begin{algorithmic}[1]
+        \State $Data_{\%}$ \leftarrow random subset of N\% of $Data_{train}$
+        \For{$x_i$ in $Data_{\%}$}
+            \vspace{0.6em}
+            \State $x_i' \leftarrow 
+            \begin{cases}
+                X_i + \varepsilon & \text{with probability } 0.5 \\
+                X_i - \varepsilon & \text{with probability } 0.5
+            \end{cases}$
+            \State $y_i' \leftarrow y_i$
+            \vspace{0.6em}
+        \EndFor
+        \vspace{0.6em}
+        \State $Data_\text{aug}$ \leftarrow $Data_{train} \cup Data_{\%}$
+        \State $Data_\text{final}$ \leftarrow Downsample($Data_\text{aug}, Size$)
+        \vspace{0.6em}
+        \State \Return $Data_{\text{final}}$
+    \end{algorithmic}
+    \caption{Let $Data_{\text{train}}$ represent the training dataset, $\text{Size}$ denote the size of $Data_{\text{train}}$ , $N$ specify the percentage of data to be augmented, and $\varepsilon$ define the magnitude of the applied shift. Since excessively large or domain-irrelevant shifts can degrade performance, the parameter $\varepsilon$ is a constant determined a posteriori through a grid search over a predefined range of possible values. The direction of the shift is randomly selected.}
 \end{algorithm}
 
 
