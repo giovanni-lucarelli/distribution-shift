@@ -3,26 +3,6 @@
 
 One of the most used approach to mitigate covariate shift consequences is \textit{Reweighting}, which consists in quantify the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists in generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. In this chapter, we introduce an innovative approach we term \textbf{\textit{Random Augmentation Walk}}. In particular, we will show how applying this pre-processing method to the training step of a Gradient Boosting model, leads to an improvement in performances for both Classification and Regression tasks.
 
-% \section{Overfitting}
-
-
-% The simplest approach to improving model performance is to overfit the model on the training data. The idea is that by overfitting to the training data, the model may better capture the underlying data distribution, potentially leading to improved performance on the shifted test data—particularly for data points that lie within the intersection of the training and test distributions.
-
-% In order to overfit the models, we created a custom script to perform grid search withot cross-validation. We favored the hyperparameters that achieved the highest score on the training set, while ignoring the necessary precaution to avoid overfitting, i.e. we overshot the maximum depth reachable by the trees.
-
-% %Since the logistic GAM is a method which automatically selects the functions that best fit the data, we did not perform any overfitting on it. 
-% Since the logistic GAM uses different methods to perform fine tuning from the other ones, we are still trying to figure out how to implement a proper overfit. The results for the other models are shown in \cref{fig:overfitted-models-perf}.
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{assets/overfit.png} 
-%     \caption{\textbf{Performance comparison of overfitted models under covariate shift}}
-%     \label{fig:overfitted-models-perf}
-% \end{figure}
-
-
-% % Although the GAM does not appear to be suffering from overfitting,
-% As depicted in \cref{fig:overfitted-models-perf}, the performance of the models declines as the percentage of mixed data points increases, falling short of the levels achieved by the fine-tuned models. The plot also highlights that overfitting resulted in greater variability in the models' AUC scores. Among the models, the decision tree was the most adversely affected by the overfitting process, whereas the logistic regression model demonstrated relatively better performance compared to the extreme gradient boosting model.
 
 \section{Random Augmentation Walk}
 
@@ -70,7 +50,7 @@ This method is based on the idea of \textbf{Data Augmentation}. Instead of using
                 \State $Data_\text{final}$ \leftarrow $Downsample(Data_\text{aug}, Size)$\\
             \STATE \textbf{Return} $Data_{\text{final}}$
         \end{algorithmic}
-        \caption{Let $Data_{\text{train}}$ represent the training dataset, $\text{Size}$ denote the size of $Data_{\text{train}}$ , $N$ specify the percentage of data to be augmented, and $\varepsilon$ define the magnitude of the applied shift. The parameter $\varepsilon$ is a constant determined a posteriori through a grid search over a predefined range of possible values. The direction of the shift is randomly selected.}
+        \caption{Let $Data_{\text{train}}$ represent the training dataset, $\text{Size}$ denote the size of $Data_{\text{train}}$ , $N$ specify the percentage of data to be augmented, and $\varepsilon$ define the magnitude of the applied shift. Since excessively large or domain-irrelevant shifts can degrade performance, the parameter $\varepsilon$ is a constant determined a posteriori through a grid search over a predefined range of possible values. The direction of the shift is randomly selected.}
 \end{algorithm}
 
 
@@ -113,10 +93,15 @@ Each model is evaluated on 11 distinct test sets, where each test set is generat
 
 The models' performance is simulated and assessed across 50 instances of 11 distinct statistical mixtures, ensuring a sufficient number of trials to rigorously validate significance using two samples Student's t-Test.
 
-\subsubsection{Models}
+\subsubsection{Applying R.A.W. to Gradient Boosting Classifier}
 
+Traditional Gradient Boosting Classifiers (GBC) learn decision boundaries by iteratively minimizing residuals between predictions and observed labels. However, the model typically only observes the original training points, optimizing its performance for that specific feature distribution. This approach can degrade performance when test-time distributions deviate from training data as shown in chapter 3. 
 
-
+The results in the next session were obtained by training two instances of the same model with and without the Random Augmentation Walk method. The models are configured as follows:
+\begin{itemize}
+    \item \textbf{Baseline Model}: A Gradient Boosting Regressor (GBR) is employed as a baseline model. The GBR is configured with the following hyperparameters: \plaintt{n\_estimators=100, max\_depth=5, learning\_rate=0.05}.
+    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 80\%. Meanwhile $\varepsilon$ controls the magnitude of shifts considered in training (set to 0.05 in this experiment).
+\end{itemize}
 
 
 
@@ -155,7 +140,7 @@ Thirty test sets are created by shifting the $x$ values by factors ranging from 
 Two instances of the same model are trained with and without the Random Augmentation Walk method. The models are configured as follows:
 \begin{itemize}
     \item \textbf{Baseline Model}: A Gradient Boosting Regressor (GBR) is employed as a baseline model. The GBR is configured with the following hyperparameters: \plaintt{n\_estimators=100, max\_depth=5, learning\_rate=0.05}.
-    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data (\plaintt{fraction\_to\_shift}) to be augmented is set to 40\%. Meanwhile the \plaintt{base\_shift\_factor} controls the magnitude of shifts considered in training (set to 1 in this experiment).
+    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 40\%. Meanwhile the $\varepsilon$ which controls the magnitude of shifts considered in training is set to 1.
 \end{itemize}
 
 
