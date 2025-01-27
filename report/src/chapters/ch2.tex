@@ -1,5 +1,4 @@
 \chapter{Data Generation}
-\chapterauthor{Giovanni Lucarelli}
 
 To evaluate the performance of the proposed models under varying degrees of covariate distribution shift, we simulated a training dataset and multiple test datasets, each exhibiting a distinct degree of shift. This setup enables a comprehensive assessment of the models’ generalization capabilities.
 
@@ -10,7 +9,7 @@ The target variable $Y$ is a binary variable with values in $\{0, 1\}$. It was g
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{assets/label_dist_train.png}
+    \includegraphics[width=0.65\textwidth]{assets/label_dist_train.png}
     \caption{Distribution of the target variable in the training dataset.}
     \label{fig:label_dist_train}
 \end{figure}
@@ -20,7 +19,7 @@ A fully shifted test dataset was generated from a new multivariate normal distri
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{assets/label_dist_fullyshift.png}
+    \includegraphics[width=0.65\textwidth]{assets/label_dist_fullyshift.png}
     \caption{Distribution of the target variable in the fully shifted dataset.}
     \label{fig:label_dist_fullyshift}
 \end{figure}

@@ -1,5 +1,4 @@
 \chapter{Performance Enhancement}
-\chapterauthor{Giacomo Amerio - Andrea Spinelli}
 
 One of the most used approach to mitigate covariate shift consequences is \textit{Reweighting}, which consists in quantify the degree of distribution shift and then apply a correction to the model \cite{zhang}. Another approach is \textit{Data Augmentation}, which consists in generating new data points from the original ones, in order to make the model more robust to the distribution shift \cite{zhao}. In this chapter, we introduce an innovative approach we term \textbf{\textit{Random Augmentation Walk}}. In particular, we will show how applying this pre-processing method to the training step of a Gradient Boosting model, leads to an improvement in performances for both Classification and Regression tasks.
 
@@ -39,7 +38,7 @@ Interestingly, this method does not require any knolewdge of the shifted test di
 It is important to note that despite the variation in the $x_i'$ values, the $y_i$ values remain the same.
 
 \begin{tcolorbox}[colback=gray!5,colframe=gray!40,title= Why Keep the Same Label?]
-    Because these noise-shifted samples are meant to represent plausible perturbations of the same underlying data distribution. By labeling these new synthetic points consistently, we teach the model that "even if X changes by some amount, the correct label remains Y". This strategy surely holds correct up until the degree of class imbalance is kept under a reasonable proportion in the shifted sets.
+    Because these noise-shifted samples are meant to represent plausible perturbations of the same underlying data distribution. By labeling these new synthetic points consistently, we teach the model that \curlyquotes{even if X changes by some amount, the correct label remains Y}. This strategy surely holds correct up until the degree of class imbalance is kept under a reasonable proportion in the shifted sets.
 \end{tcolorbox}
 
 
