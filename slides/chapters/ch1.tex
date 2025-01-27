@@ -1,16 +1,16 @@
-%  \documentclass[11pt]{beamer}
-% \usepackage{../settings}
-% \usepackage{lipsum} % Per generare testo di esempio
-% \usepackage{tcolorbox}
+%   \documentclass[11pt]{beamer}
+%  \usepackage{../settings}
+%  \usepackage{lipsum} % Per generare testo di esempio
+%  \usepackage{tcolorbox}
 
-%  \begin{document}
+%   \begin{document}
 
-% \title{DISTRIBUTION SHIFT}
-% \subtitle{A Study on Their Effects on Statistical Models and Strategies for Mitigation}
-% \date{}
-% \author{Andrea Spinelli, Giacomo Amerio,\\Giovanni Lucarelli, Tommaso Piscitelli}
-% \institute{University of Trieste}
-% \titlegraphic{\hfill\includegraphics[height=1.5cm]{assets/logo100_orizzontale.pdf}}
+%  \title{DISTRIBUTION SHIFT}
+%  \subtitle{A Study on Their Effects on Statistical Models and Strategies for Mitigation}
+%  \date{}
+%  \author{Andrea Spinelli, Giacomo Amerio,\\Giovanni Lucarelli, Tommaso Piscitelli}
+%  \institute{University of Trieste}
+%  \titlegraphic{\hfill\includegraphics[height=1.5cm]{assets/logo100_orizzontale.pdf}}
 
 
 
@@ -55,28 +55,48 @@
 		
 		\item It occurs when the distribution of the training data differs from the distribution of the test data.
 		
-		\item This can lead to a decrease in the performance of the model.
-	\end{itemize}
-	The two most common and well-studied causes of Dataset shift are:
-	\begin{itemize}
-		\item \textbf{Sample selection bias} (e.g. Economic studies) %  Clinical trials
+		\item The two most common and well-studied causes of Dataset shift are:
 		
-		\item \textbf{Non stationary environments}%(Content recommendation system of Netflix)
+		\begin{itemize}
+			\item \textbf{Sample selection bias} % (e.g. Economic studies)  Clinical trials
+			
+			\item \textbf{Non stationary environments} %(Content recommendation system of Netflix)
+		\end{itemize}
+
 	\end{itemize}
+	
+	
 \end{frame} 
 
 
 \begin{frame}{Covariate shift}
 	%Can be formally defined as follows.
-	Consider a target variable \( X \) and a response variable \( Y \). Let \( P_{\text{tra}} \) denote the probability distribution of the training data and \( P_{\text{tst}} \) denote the probability distribution of the test data. A \textbf{covariate shift} occurs when:  
+	%Let \( P_{\text{tra}} \) denote the probability distribution of the training data and \( P_{\text{tst}} \) denote the probability distribution of the test data. A \textbf{covariate shift} occurs when:  
 	\vspace{0.3cm}
-	\[	P_{\text{tra}}(Y \mid X) = P_{\text{tst}}(Y \mid X) \quad \text{but} \quad P_{\text{tra}}(X) \neq P_{\text{tst}}(X)	\]
+	$$	
+	\begin{array}{|ccc|}
+		\hline
+		\ & & \\
+		\ & P_{\text{tra}}(Y \mid X) = P_{\text{tst}}(Y \mid X) \quad \text{but} \quad P_{\text{tra}}(X) \neq P_{\text{tst}}(X) & \ \\
+		\ & & \\
+		\hline
+	\end{array}
+	$$
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=9cm]{../assets/immagine.png}
 		\label{fig:immagine}
 	\end{figure}
+\end{frame}
+
+\begin{frame}{Inaccurate Model}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=6cm]{../assets/inacurate_model.png}
+		\label{fig:inacurate_model}
+	\end{figure}
+	Changes in the features distribution can significantly impact the model's \textit{effectiveness}.
 \end{frame}
 
 \begin{frame}{Example}
@@ -89,14 +109,14 @@
 		\end{flushleft}
 		\centering
 		\includegraphics[width=5cm]{../assets/cat-dog-train.png}
-		\label{fig:cani-gatti}
+		\label{fig:cani-gatti-train}
 		\vspace{-0.2cm}
 		\begin{flushleft}
 			\textbf{\textcolor{blue}{Test set:}}
 		\end{flushleft}
 		\centering
 		\includegraphics[width=5cm]{../assets/cat-dog-test.png}
-		\label{fig:cani-gatti}
+		\label{fig:cani-gatti-test}
 		
 	\end{minipage}
 	\hfill
@@ -106,15 +126,6 @@
 			Model will not accurately distinguish between cats and dogs because the feature distribution will differ.
 		\end{tcolorbox}
 	\end{minipage}
-\end{frame}
-
-\begin{frame}{Inaccurate Model}
-	\begin{figure}[H]
-		\centering
-		\includegraphics[width=6cm]{../assets/inacurate_model.png}
-		\label{fig:inacurate_model}
-	\end{figure}
-	Changes in the features distribution can significantly impact the model's accuracy.
 \end{frame}
 
 

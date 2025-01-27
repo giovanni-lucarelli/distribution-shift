@@ -1,169 +1,112 @@
 \section{Performance Degradation} \label{sec:performance-degradation}
 
 \begin{frame}{Performance Degradation}
-
-    \boxed{\textbf{Models}}
     
-    \begin{itemize}
-        \item \textbf{Random Forest}
-        \item \textbf{Gradient Boosting}
-        \item \textbf{XGBoost}
-        \item \textbf{Logistic Regression} [baseline]
-    \end{itemize}
-
-    \boxed{\textbf{Performance Metric}}
+    We evaluated four distinct statistic models:
     
-    We used the \textbf{Area Under the Receiver Operating Characteristic Curve (ROC-AUC)} as the performance metric for our models.
-
-    \boxed{\textbf{Fine Tuning}}
-    
-    We performed a \textbf{hyperparameter tuning} to optimise the performance of our models. to do this, we used the \textbf{Grid Search} method with 5-fold cross-validation.
-
-\end{frame}
-
-\begin{frame}{Logistic Regression}
-
-  Below are summarized the coefficients, significance (\textit{P>|z|}), and confidence intervals for the logistic regression baseline model.
-
-    \begin{table}[H]
-      \small
-      \centering
-      \begin{tabular}{lrrrrrr}
-        \toprule
-        & \textbf{coef} & \textbf{std err} & \textbf{z} & \textbf{P>|z|} & \textbf{[0.025} & \textbf{0.975]} \\
-        \midrule
-        \textbf{Intercept} & \sigcoef{-0.9761} & 0.122 & -8.022 & 0.000 & -1.215 & -0.738 \\
-        \textbf{X1}        & \sigcoef{-0.6550} & 0.120 & -5.462 & 0.000 & -0.890 & -0.420 \\
-        \textbf{X2}        & -0.2049 & 0.180 & -1.139 & 0.255 & -0.558 & 0.148 \\
-        \textbf{X1:X2}     & \sigcoef{-0.2653} & 0.125 & -2.118 & 0.034 & -0.511 & -0.020 \\
-        \textbf{X3}        & \sigcoef{1.3187}  & 0.115 & 11.478 & 0.000 & 1.094  & 1.544 \\
-        \textbf{X1:X3}     & \sigcoef{1.3248}  & 0.106 & 12.453 & 0.000 & 1.116  & 1.533 \\
-        \textbf{X2:X3}     & -0.3253 & 0.172 & -1.894 & 0.058 & -0.662 & -0.011 \\
-        \textbf{X1:X2:X3}  & 0.0510  & 0.120 & 0.427  & 0.670 & -0.183 & 0.285 \\
-        \bottomrule
-      \end{tabular}
-      \label{tab:regression_results}
-    \end{table}
     \small
-    $$
-    \log\left(\dfrac{p}{1-p}\right) = \sigma(-0.976 - 0.655 \cdot X_1 - 0.265 \cdot X_1X_2 + 1.319 \cdot X_3 + 1.325 \cdot X_1X_3)
-    $$
-
+    \begin{itemize}
+        \item \textbf{Random Forest}: An ensemble method combining multiple decision trees, where final prediction is determined by majority voting
+        \item \textbf{Gradient Boosting}: Sequential ensemble approach that iteratively improves predictions by combining weak learners (in our case decision trees)
+        \item \textbf{XGBoost}: Advanced implementation of gradient boosting with enhanced regularization and computational efficiency
+        \item \textbf{Logistic Regression}: \textcolor{gray}{[baseline]} Classic linear classifier used as a reference model
+    \end{itemize}
+    
 \end{frame}
 
-\begin{frame}{Random Forests}
+\begin{frame}{Fine Tuning and Performance Metric}
 
-    \textbf{Random Forest} is an ensemble learning method that builds multiple decision trees during training. 
+    \textbf{Performance Metric}
 
-    \begin{columns}
-        \begin{column}{0.45\textwidth}
-            It outputs the class that is the majority vote of the individual trees.
+    We used the \textbf{Area Under the Receiver Operating Characteristic Curve (ROC-AUC)} as the performance metric for our models.
+    
+    \textbf{Fine Tuning}
 
-            \vspace{-0.5em}
+    We performed a \textbf{hyperparameter tuning} using the \textbf{Grid Search} method with 5-fold cross-validation.
 
-            {\small
-            $$
-            \begin{array}{|l|c|}
-                \hline
-                \textbf{Hyperparameter} & \textbf{Value} \\
-                \hline
-                \hline
-                n\_estimators & 125 \\
-                criterion & gini \\
-                max\_depth & 5 \\
-                min\_samples\_split & 5 \\
-                min\_samples\_leaf & 1 \\
-                bootstrap & True \\
-                \hline
-            \end{array}
-            $$
+    \begin{adjustbox}{margin=-0.5em 0em}
+    \begin{columns}[T,totalwidth=\textwidth]
+        \begin{column}{0.38\textwidth}
+            \centering
+            \textbf{Random Forest}
+            \vskip 0.5em
+            {\scriptsize
+            \begin{tabular}{|l|c|}
+            \hline
+            \textbf{Params} & \textbf{Value} \\
+            \hline
+            n\_estimators & 125 \\
+            max\_depth & 5 \\
+            min\_samples\_split & 5 \\
+            min\_samples\_leaf & 1 \\
+            bootstrap & True \\
+            \hline
+            \end{tabular}
             }
         \end{column}
-        \begin{column}{0.55\textwidth}
+        \begin{column}{0.34\textwidth}
+            \centering
+            \textbf{Gradient Boosting}
+            \vskip 0.3em
+            {\scriptsize
+            \begin{tabular}{|l|c|}
+            \hline
+            \textbf{Params} & \textbf{Values} \\
+            \hline
+            n\_estimators & 500 \\
+            max\_depth & 3 \\
+            learning\_rate & 0.005 \\
+            subsample & 0.4 \\
+            \hline
+            \end{tabular}
+            }
+        \end{column}
+        \begin{column}{0.29\textwidth}
+            \centering
+            \textbf{XGBoost}
+            \vskip 0.5em
+            {\scriptsize
+            \begin{tabular}{|l|c|}
+            \hline
+            \textbf{Params} & \textbf{Values} \\
+            \hline
+            n\_estimators & 100 \\
+            max\_depth & 6 \\
+            learning\_rate & 0.1 \\
+            subsample & 0.7 \\
+            gamma & 5 \\
+            \hline
+            \end{tabular}
+            }
+        \end{column}
+    \end{columns}
+    \end{adjustbox}
+
+\end{frame}
+
+\begin{frame}%{Performance Comparison}
+
+    \vspace{1em}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
             \begin{figure}
                 \centering
-                \vfill
+                \includegraphics[width=\textwidth]{lr_auc.png}
+                \vskip 0.6em
                 \includegraphics[width=\textwidth]{rf_auc.png}
             \end{figure}
         \end{column}
-    \end{columns}
-
-        \begin{footnotesize}
-            \centering
-            \textbf{Note:} We set \texttt{random\_state} to \texttt{0} for reproducibility.
-        \end{footnotesize}
-\end{frame}
-
-\begin{frame}{Gradient Boosting}
-
-    \textbf{Gradient Boosting} combines weak predictive models (in our case decision trees) in an iterative manner.
-
-    \begin{columns}
-        \begin{column}{0.45\textwidth}
-            Each model corrects the errors of its predecessor, making it highly effective but sensitive to hyperparameter tuning.
-
-            \vspace{-0.1em}
-
-            {\small
-            $$
-            \begin{array}{|l|c|}
-                \hline
-                \textbf{Hyperparameter} & \textbf{Values} \\
-                \hline
-                \hline
-                n\_estimators & 125 \\
-                learning\_rate & 0.025 \\
-                max\_depth & 3 \\
-                subsample & 0.4 \\
-                \hline
-            \end{array}
-            $$
-            }
-        \end{column}
-            \begin{column}{0.55\textwidth}
-                \begin{figure}
-                    \centering
-                    \vfill
-                    \includegraphics[width=\textwidth]{gbc_auc.png}
-                \end{figure}
-            \end{column}
-    \end{columns}
-
-\end{frame}
-
-\begin{frame}{Extreme Gradient Boosting}
-
-    \textbf{XGBoost} (\textit{Extreme Gradient Boosting}) is a scalable and efficient gradient boosting framework known for its regularization capabilities and speed.
-
-    \vspace{-1em}
-
-    \begin{columns}
-        \begin{column}{0.45\textwidth}
-            {\small
-            $$
-            \begin{array}{|l|c|}
-                \hline
-                \textbf{Hyperparameter} & \textbf{Values} \\
-                \hline
-                \hline
-                n\_estimators & 100 \\
-                learning\_rate & 0.1 \\
-                max\_depth & 6 \\
-                subsample & 0.7 \\
-                gamma & 5 \\
-                \hline
-            \end{array}
-            $$
-            }
-        \end{column}
-        \begin{column}{0.55\textwidth}
+        \begin{column}{0.5\textwidth}
             \begin{figure}
                 \centering
-                \vfill
+                \includegraphics[width=\textwidth]{gbc_auc.png}
+                \vskip 0.6em
                 \includegraphics[width=\textwidth]{xgb_auc.png}
             \end{figure}
         \end{column}
     \end{columns}
+
 \end{frame}
 
 \begin{frame}{Performance Comparison}
