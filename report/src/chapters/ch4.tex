@@ -45,29 +45,21 @@ It is important to note that despite the variation in the $x_i'$ values, the $y_
 
 
 
-\subsection{Classification Task}
+\subsection{Statistical analysis}
 
-We evaluate the impact of the R.A.W. method on the same binary classification task illustrated in chapter 3. The experiment is conducted as follows:
-\subsubsection{Training Set}
-The training set consists of 10,000 data points with 3 features and 1 binary target variable. The data points and the target variable are defined as in chapter 2.
-
-
-
-\subsubsection{Test Sets}
-The test sets are generated in the same way as the training set, but with the modifications reported in chapter 3.
-
+We evaluate the impact of the R.A.W. method on the same binary classification task, repeating the experiment as illustrated in chapter 3. The experiment is conducted as follows:
 Each model is evaluated on 11 distinct test sets, where each test set is generated with a varying percentage of shifted data points, representing different statistical mixtures.
 
-The models' performance is simulated and assessed across 50 instances of 11 distinct statistical mixtures, ensuring a sufficient number of trials to rigorously validate significance using Student's t-Test.
+The models' performance is simulated and assessed across $N=50$ instances of $11$ distinct statistical mixtures, ensuring a sufficient number of trials to rigorously validate significance using Student's t-Test.
 
 \subsubsection{Applying R.A.W. to Gradient Boosting Classifier}
 
 Traditional Gradient Boosting Classifiers (GBC) fits an ensemble of weak learners (often decision trees) to the residuals between your training labels and current predictions. Each successive tree is trained to reduce these residuals. However, the model typically only observes the original training points, optimizing its performance for that specific feature distribution. This approach can degrade performance when test-time distributions deviate from training data as shown in chapter 3. 
 
-The results in the next session were obtained by training two instances of the same model with and without the Random Augmentation Walk method. The models are configured as follows:
+The results in the next session were obtained by training two instances of the same model with and without the Random Augmentation Walk preprocessing method. The models are configured as follows:
 \begin{itemize}
     \item \textbf{Baseline Model}: A Gradient Boosting Classifier is employed as a baseline model. The GBR is configured with the following hyperparameters: \plaintt{n\_estimators=100, max\_depth=5, learning\_rate=0.05}.
-    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 90\%. Meanwhile $\varepsilon$ controls the magnitude of shifts considered in training (in this experiment we sampled it ten times from a Uniform Distrution which ranges from 0.015 to 0.075 ).
+    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 90\%. Meanwhile $\varepsilon$ controls the magnitude of shifts considered in training (in this experiment we sampled it ten times from a Uniform Distrution which ranges from $0.015$ to $0.075$).
 \end{itemize}
 
 \subsection{Classification Results}
@@ -84,7 +76,7 @@ The boxplot below shows the ROC AUC scores of the baseline and augmented models 
 The interquartile ranges of the two models are very similar to each other, suggesting that the Random Augmentation Walk method does not significantly alter the model's performance.
 
 
-To test the significance of the improvement, we conducted a Student's t-Test. The null hypothesis $\boldsymbol{H_0}$ is that the difference between the averaged ROC AUC scores of model with and without R.A.W. is zero. The alternative hypothesis $\boldsymbol{H_1}$ is that this difference is not zero. The results of the t-Test are shown in the table below:
+To test the significance of the R.A.W. method, we conducted a Student's t-Test. The null hypothesis $\boldsymbol{H_0}$ is that the difference between the averaged ROC AUC scores of model with and without R.A.W. is zero. The alternative hypothesis $\boldsymbol{H_1}$ is that this difference is not zero. The results of the t-Test are shown in the table below:
 
 \begin{table}[H]
     \centering
@@ -97,7 +89,7 @@ To test the significance of the improvement, we conducted a Student's t-Test. Th
     \end{tabular}
 \end{table}
 
-The table shows an evelated p-value, which suggests that the difference in ROC AUC scores between the baseline and augmented models is not statistically significant. This result is consistent with the boxplot above, where the AUC scores of the two models are very close to each other. The R.A.w. method does not show any sign of influence on the model's performance.
+The table shows an elevated p-value, which suggests that the difference in ROC AUC scores between the baseline and augmented models is not statistically significant. This result is consistent with the boxplot above, where the AUC scores of the two models are very close to each other. The R.A.W. method does not show any sign of influence on the model's performance.
 
 \begin{figure}[H]
     \centering
@@ -128,7 +120,7 @@ A second t-Test was conducted on the differences in ROC AUC scores in the 50 ins
     \end{tabular}
 \end{table}
 
-Even in the last test, the R.A.W. does not show any influence in increasing the ROC AUC score. . 
+Even in the last test, the R.A.W. does not show any influence in increasing the ROC AUC score.
 
 \begin{figure}[H]
     \centering
