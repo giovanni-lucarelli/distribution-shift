@@ -24,7 +24,7 @@ In real-world applications, data often is not stationary (in time or space). One
 
 \section{Simple Covariate Shift}
 
-The most fundamental form of dataset shift, known as \textit{covariate shift}, can be formally defined as follows. Consider an input variable \( X \) and a response variable \( Y \), where \( X \to Y \) represents the relationship between the two. Let \( P_{\text{tra}} \) denote the probability distribution of the training data and \( P_{\text{tst}} \) denote the probability distribution of the test data. A covariate shift occurs when:  
+The most fundamental form of dataset shift, known as \textit{covariate shift}, can be formally defined as follows. Consider an input variable \( X \) and a response variable \( Y \). Let \( P_{\text{tra}} \) denote the probability distribution of the training data and \( P_{\text{tst}} \) denote the probability distribution of the test data. A covariate shift occurs when:  
 \[
 P_{\text{tra}}(Y \mid X) = P_{\text{tst}}(Y \mid X) \quad \text{but} \quad P_{\text{tra}}(X) \neq P_{\text{tst}}(X)\,.
 \]
@@ -46,7 +46,7 @@ This phenomenon can affect a wide range of machine learning models, regardless o
 		\item Diagnostic and screening tools in healthcare
 	\end{enumerate}
 	
-For example, consider a model designed to distinguish between cats and dogs. Our training data might consist of images like those shown in \cref{fig:cani-gatti} (top). At test time, we are asked to classify the images from the test set as the one in the bottom of the same figure. Once deployed, the model will not accurately distinguish between cats and dogs because the feature distribution will differ. Model may achieve a high degree of accuracy on a labeled training dataset, identifying and classifying the object in an image. However, when deployed with real-time data, changes in the input distribution can significantly impact the model's accuracy.
+For example, consider a model designed to distinguish between cats and dogs. Our training data might consist of images like those shown in \cref{fig:cani-gatti} (top). At test time, we are asked to classify the images from the test set as the one in the bottom of the same figure. Once deployed, the model will not accurately distinguish between cats and dogs because the feature distribution will differ. Model may achieve a high degree of accuracy on a labeled training dataset, identifying and classifying the object in an image. However, when deployed in testing scenarios, changes in the input distribution can significantly impact the model's \textit{effectivness}.
 
 \begin{figure}[H]
 	\centering
@@ -60,9 +60,9 @@ For example, consider a model designed to distinguish between cats and dogs. Our
 
 The same can accure in facial recognition: the training data might not include subjects from specific ethnicities or age groups. When the model is deployed in a real-world environment, subjects that do not align with the training data may exhibit an unrecognizable feature distribution. Another cause of covariate shift could be variations in environmental conditions, such as lighting. For instance, an image categorization model trained under specific lighting conditions may perform poorly when deployed in an operational setting with different lighting.
 	
-Supervised learning models are typically trained on labeled data, which is prepared and curated by data scientists to ensure high quality through outlier detection and analysis. However, this level of control is not feasible in operational environments, as input data becomes unpredictable once the model is deployed. Consequently, the training data often differs in distribution from real-world input data, both in availability and characteristics. This mismatch can negatively impact the model's accuracy. Trained algorithms may fail to recognize features from a different data distribution, leading to reduced performance or even complete ineffectiveness, as illustrated in \cref{fig:inaccurate-model}. This highlights a critical issue in machine learning: a model that performs well on training data may not retain its accuracy post-deployment.
+Supervised learning models are typically trained on labeled data, which is prepared and curated by data scientists to ensure high quality through outlier detection and analysis. However, this level of control is not feasible in operational environments, as input data becomes unpredictable once the model is deployed. Consequently, the training data often differs in distribution from real-world input data, both in availability and characteristics. This mismatch can negatively impact the model's accuracy. Trained algorithms may fail to recognize features from a different data distribution, leading to reduced performance or even complete ineffectiveness, as illustrated in \cref{fig:inaccurate-model}. This highlights a critical issue in machine learning: a model that performs well on training data may not retain its perfomance levels post-deployment.
 
-The primary objective is to assess the extent of the covariate shift, implement mitigation strategies, and enhance the model's accuracy. Addressing covariate shift also reveals the model's generalization ability: its capacity to apply learned features from training data to unseen data. Poor generalization often stems from overfitting, where the model becomes overly tailored to the training data, making it ineffective for inputs with differing distributions.
+The primary objective of this project is to assess the extent of the covariate shift, implement mitigation strategies, and try to enhance the model's effectivness. Addressing covariate shift also reveals the model's generalization ability: its capacity to apply learned features from training data to unseen data. Poor generalization often stems from overfitting, where the model becomes overly tailored to the training data, making it ineffective for inputs with differing distributions.
 
 \begin{figure}[H]
 	\centering
