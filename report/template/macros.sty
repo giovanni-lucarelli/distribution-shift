@@ -15,6 +15,7 @@
 \newcommand{\logo}[1]{\includegraphics[width=0.25\textwidth]{#1}}
 \newcommand{\authors}[1]{\def\@authors{#1}}
 \newcommand{\nologo}{\def\@nologo{1}}
+\newcommand{\subtitle}[1]{\def\@subtitle{\huge #1\unskip}}
 
 % Creates text with shadow effect
 \newcommand{\shadowtext}[1]{
@@ -60,6 +61,8 @@
         
         % Title - always required
         \shadowtext{\@title}\\[1cm]
+
+        \huge A Study on Its Effects on Statistical Models \\ and Strategies for Mitigation\\[1cm]
         
         % Lecturer information - optional
         \ifx\@lecturer\undefined\else

@@ -14,10 +14,10 @@ Because the AUC focuses on how well the model ranks positive instances above neg
 
 As metioned in the first chapter, simple covariate shift can lead to serious degradations in model performance. In this chapter, we will analyze how different statistical learning models' performances are affected by covariate shift. 
 
-We evaluated a diverse set of models, ranging from simple linear classifiers to more sophisticated ensemble methods, to comprehensively assess their robustness under covariate shift conditions:
+We evaluated a diverse set of models to comprehensively assess their robustness under covariate shift conditions:
 
 \begin{itemize}
-    \item \textbf{Logistic Regression}: A linear classifier that serves as a baseline model;
+    \item \textbf{Logistic Regression}: A generalised linear model that serves as a baseline model;
     \item \textbf{Random Forest}: An ensemble learning method that builds multiple decision trees and averages their predictions to improve performance;
     \item \textbf{Gradient Boosting}: An ensemble learning method that builds sequential weak learners (in our case decision trees) to correct prediction errors iteratively, focusing on residuals from previous predictions;
     \item \textbf{eXtreme Gradient Boosting (XGBoost)}: A highly optimized implementation of gradient boosting machines known for its efficiency and performance.
