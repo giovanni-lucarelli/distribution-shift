@@ -67,7 +67,7 @@ Traditional Gradient Boosting Classifiers (GBC) fits an ensemble of weak learner
 The results in the next session were obtained by training two instances of the same model with and without the Random Augmentation Walk method. The models are configured as follows:
 \begin{itemize}
     \item \textbf{Baseline Model}: A Gradient Boosting Classifier is employed as a baseline model. The GBR is configured with the following hyperparameters: \plaintt{n\_estimators=100, max\_depth=5, learning\_rate=0.05}.
-    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 80\%. Meanwhile $\varepsilon$ controls the magnitude of shifts considered in training (in this experiment we sampled it ten times from a Uniform Distrution which ranges from 0.015 to 0.075 ).
+    \item \textbf{R.A.W. Model}: This model has the same features as the baseline GBR but leverages the key parameters of the custom data augmentation method. The percentage of training data $N$ to be augmented is set to 90\%. Meanwhile $\varepsilon$ controls the magnitude of shifts considered in training (in this experiment we sampled it ten times from a Uniform Distrution which ranges from 0.015 to 0.075 ).
 \end{itemize}
 
 \subsection{Classification Results}
@@ -135,6 +135,8 @@ Even in the last test, the R.A.W. does not show any influence in increasing the 
     \includegraphics[width=0.8\textwidth]{assets/RealRawDiffLAST.png} 
     \caption{\textbf{50 ROC AUC score differences between the baseline and augmented models.}Note that the difference is computed on the AUC score of the last test set.}
 \end{figure}
+
+
 
 
 
