@@ -64,7 +64,7 @@ class MechanisticTrainer(RobustTrainer):
     def __init__(
         self,
         model_type: str = 'gbc',
-        base_shift_factor: float = 0.1,
+        base_shift_factor: list = [0.1,0.2,0.001,0.01],
         n_rounds: int = 1,
         fraction_to_shift: float = 0.7,
         n_grad_steps: int = 1,
@@ -225,20 +225,22 @@ class MechanisticTrainer(RobustTrainer):
                     
                     
                     features_index = np.random.choice(range(len(x_i)), self.top_k, replace=False)
-
+                    rnd_shift = self.rng.choice(self.base_shift_factor)
                     for feat_idx in features_index:
                         direction_sign = self.rng.choice([-1, 1])
-                        x_i[feat_idx] += direction_sign * self.base_shift_factor                
+                        x_i[feat_idx] += direction_sign * rnd_shift                
                 
             
                 else:
                     
                     
                     features_index = np.random.choice(range(len(x_i)), self.top_k, replace=False)
+                    rnd_shift = self.rng.choice(self.base_shift_factor)
+                     
                     for feat_idx in features_index:
                         
                         direction_sign = self.rng.choice([-1, 1])
-                        x_i[feat_idx] += direction_sign * self.base_shift_factor    
+                        x_i[feat_idx] += direction_sign * rnd_shift 
                     
             
             noise = self.rng.normal(0, self.noise_scale, size=len(x_i))
@@ -309,14 +311,14 @@ class MechanisticTrainer(RobustTrainer):
 
 def run_mechanistic_robust_training_and_eval_in_memory(
     df_train: pd.DataFrame,
-    df_dict: Dict[float, pd.DataFrame],
+    df_dict: Optional[Dict[float, pd.DataFrame]],  # make it Optional
     target: str = 'Y',
     n_rounds: int = 2,
-    model_type: str = 'gbc',  # 'gbc', 'tree', 'gam', 'rfc'
-    base_shift_factor: float = 0.1,
-    fraction_to_shift: float = 0.5,
+    model_type: str = 'gbc',
+    base_shift_factor: float = 0.01,
+    fraction_to_shift: float = 0.95,
     random_state: int = 42,
-    noise_scale: float = 0.0001,
+    noise_scale: float = 0.,
     n_grad_steps: int = 1,
     top_k: int = 3,
     eps: float = 0.1,
@@ -324,37 +326,21 @@ def run_mechanistic_robust_training_and_eval_in_memory(
 ) -> Tuple[object, object]:
     """
     Train a baseline model and a robust model (via MechanisticTrainer),
-    then evaluate both on each dataset in df_dict.
-
-    Parameters
-    ----------
-    df_train : pd.DataFrame
-        Training set (with columns for features + target).
-    df_dict : Dict[float, pd.DataFrame]
-        Dictionary of test DataFrames, keyed by shift probability.
-    target : str
-        Name of the target column in df_train and df_dict.
-    n_rounds, model_type, base_shift_factor, fraction_to_shift, ...
-        Hyperparameters for robust training.
+    then (optionally) evaluate both on each dataset in df_dict if not None.
 
     Returns
     -------
     baseline_model, robust_model
-        Both fitted models (sklearn estimators or LogisticGAM).
     """
     if target not in df_train.columns:
         raise ValueError(f"Target column '{target}' not in training DataFrame.")
 
-    # -------------------------------------
-    # 1) Split training data into X, y
-    # -------------------------------------
+    # 1) Split training data
     X_train = df_train.drop(columns=[target])
     y_train = df_train[target]
     print(f"Training set shape = {X_train.shape};  Target distribution:\n{y_train.value_counts()}")
 
-    # -------------------------------------
     # 2) Train Baseline Model
-    # -------------------------------------
     print("\n=== Training Baseline Model ===")
     if model_type == 'gbc':
         baseline_model = GradientBoostingClassifier(
@@ -370,7 +356,7 @@ def run_mechanistic_robust_training_and_eval_in_memory(
         )
     elif model_type == 'gam':
         if not PYGAM_AVAILABLE:
-            raise ImportError("pyGAM is not installed; install via `pip install pygam` or choose another model.")
+            raise ImportError("pyGAM is not installed; choose another model.")
         baseline_model = LogisticGAM()
     elif model_type == 'rfc':
         baseline_model = RandomForestClassifier(
@@ -384,9 +370,7 @@ def run_mechanistic_robust_training_and_eval_in_memory(
     baseline_model.fit(X_train, y_train)
     print("=> Baseline model trained.")
 
-    # -------------------------------------
     # 3) Train Robust Model
-    # -------------------------------------
     print("\n=== Training Robust Model ===")
     trainer = MechanisticTrainer(
         model_type=model_type,
@@ -405,54 +389,45 @@ def run_mechanistic_robust_training_and_eval_in_memory(
     robust_model = trainer.model
     print("=> Robust model trained.")
 
-    # -------------------------------------
-    # 4) Evaluate on each dataset in df_dict
-    # -------------------------------------
-    delta_auc_values = []
+    # 4) Evaluate on shifted test sets ONLY if df_dict is not None
+    if df_dict is not None:
+        print("\n=== Evaluation on Shifted Datasets ===")
+        for shift_prob, df_test in sorted(df_dict.items(), key=lambda x: x[0]):
+            if target not in df_test.columns:
+                print(f"Skipping shift={shift_prob}: Missing target '{target}' in test DataFrame.")
+                continue
 
-    print("\n=== Evaluation on Shifted Datasets ===")
-    for shift_prob, df_test in sorted(df_dict.items(), key=lambda x: x[0]):
-        if target not in df_test.columns:
-            print(f"Skipping shift={shift_prob}: Missing target '{target}' in test DataFrame.")
-            continue
+            X_test = df_test.drop(columns=[target])
+            y_test = df_test[target]
 
-        X_test = df_test.drop(columns=[target])
-        y_test = df_test[target]
+            # Baseline
+            y_pred_b = baseline_model.predict(X_test)
+            try:
+                y_proba_b = baseline_model.predict_proba(X_test)[:, 1]
+                auc_b = roc_auc_score(y_test, y_proba_b)
+            except:
+                auc_b = np.nan
 
-        # -- Baseline Predictions
-        y_pred_b = baseline_model.predict(X_test)
-        try:
-            y_proba_b = baseline_model.predict_proba(X_test)[:, 1]
-            auc_b = roc_auc_score(y_test, y_proba_b)
-        except:
-            auc_b = np.nan
+            # Robust
+            y_pred_r = robust_model.predict(X_test)
+            try:
+                y_proba_r = robust_model.predict_proba(X_test)[:, 1]
+                auc_r = roc_auc_score(y_test, y_proba_r)
+            except:
+                auc_r = np.nan
 
-        # -- Robust Predictions  
-        y_pred_r = robust_model.predict(X_test)
-        try:
-            y_proba_r = robust_model.predict_proba(X_test)[:, 1]  
-            auc_r = roc_auc_score(y_test, y_proba_r)
-        except:
-            auc_r = np.nan
+            acc_b = accuracy_score(y_test, y_pred_b)
+            f1_b = f1_score(y_test, y_pred_b)
+            acc_r = accuracy_score(y_test, y_pred_r)
+            f1_r = f1_score(y_test, y_pred_r)
 
-        acc_b = accuracy_score(y_test, y_pred_b)
-        f1_b = f1_score(y_test, y_pred_b)
-        acc_r = accuracy_score(y_test, y_pred_r) 
-        f1_r = f1_score(y_test, y_pred_r)
-
-        print(f"\nShift = {shift_prob:.1f}")
-        print(f"  Baseline => Accuracy: {acc_b:.3f}, F1: {f1_b:.3f}, AUC: {auc_b:.3f}")
-        print(f"  Robust   => Accuracy: {acc_r:.3f}, F1: {f1_r:.3f}, AUC: {auc_r:.3f}")
-
-        if not np.isnan(auc_r) and not np.isnan(auc_b):
-            delta = auc_r - auc_b
-            delta_auc_values.append((shift_prob, delta))
-            print(f"  Delta AUC (Robust - Baseline) = {delta:.4f}")
-
-   
-
-
-        
+            print(f"\nShift = {shift_prob:.1f}")
+            print(f"  Baseline => Accuracy: {acc_b:.3f}, F1: {f1_b:.3f}, AUC: {auc_b:.3f}")
+            print(f"  Robust   => Accuracy: {acc_r:.3f}, F1: {f1_r:.3f}, AUC: {auc_r:.3f}")
+            if not np.isnan(auc_r) and not np.isnan(auc_b):
+                print(f"  Delta AUC (Robust - Baseline) = {auc_r - auc_b:.4f}")
+            
+    else:
+        print("\nNo test dictionary (df_dict=None) provided => skipping evaluation on shifted datasets.")
 
     return baseline_model, robust_model
-
