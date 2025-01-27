@@ -49,9 +49,9 @@
   \setlength{\parindent}{0pt}
   \setlength{\parskip}{0.5em}
   \setlength{\textfloatsep}{5pt}     % Space between text and float
-  \setlength{\floatsep}{5pt}         % Space between floats
+  \setlength{\floatsep}{0pt}         % Space between floats
   \setlength{\intextsep}{5pt}        % Space around in-text floats
-  \titlespacing*{\section}{0pt}{2.5ex plus 1ex minus .2ex}{2ex plus .2ex}
+  \titlespacing*{\section}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
   \titlespacing*{\subsection}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
   \titlespacing*{\subsubsection}{0pt}{2.25ex plus 1ex minus .2ex}{1ex plus .2ex}
 }
@@ -113,7 +113,7 @@
 }
 
 \captionsetup{indention=\parindent,labelfont={small,bf},labelsep=period,%
-  tableposition=top,textfont={small},skip=2pt, belowskip=-2pt}
+  tableposition=top,textfont={small},skip=0pt, belowskip=3pt}
 
 %? ----------------- Custom hyperlinks -----------------
 % Set the hyperlink colors
@@ -135,7 +135,6 @@
 \crefformat{table}{#2Table~#1#3}      % Make the entire "Table X" clickable
 \crefname{table}{Table}{Tables}       % Change cref name for tables
 
-%? ----------------- Bibliography -----------------
 %? ----------------- Bibliography -----------------
 % Reset bibliography formatting
 \AtBeginBibliography{
