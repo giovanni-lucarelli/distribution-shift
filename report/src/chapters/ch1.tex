@@ -5,8 +5,6 @@
 
 In the field of machine learning and predictive modeling, it is often assumed that data distributions remain static, meaning they do not change between the training and deployment phases of the model. However, in practice, this assumption is rarely satisfied: data distributions can undergo significant changes between the training and testing scenarios.
 
-This phenomenon is known as \curlyquotes{\textbf{dataset shift}}\cite{shiftbook} and is closely related to another field of study, referred to by various terms such as \curlyquotes{\textbf{transfer learning}} or \curlyquotes{\textbf{inductive transfer}}. Transfer learning addresses the problem of how information can be drawn from a number of only partially related training scenarios and used to provide better predictions in one of those scenarios compared to using only that specific scenario. Therefore, dataset shift represents a more specific case: it deals with relating information in, typically, two closely related environments to improve prediction in one given the dataset in the other. Given this issue, it is crucial to develop an understanding of the suitability of particular models under such changing conditions, and it is necessary to consider whether a different predictive model should be employed.
-
 Among the various forms of dataset shift, covariate shift, studied and described by Shimodaira\cite{SHIMODAIRA2000227}, is one of the most extensively researched. It encompasses situations where the distribution of the covariates, $P(X)$ changes, while the conditional relationship $P(Y \mid X)$, representing the relationship between the covariates $X$ and the target $Y$, remains unchanged. In this case, the typical values of the covariates observed during testing differ from those observed during training.
 
 	
@@ -57,6 +55,8 @@ For example, consider a model designed to distinguish between cats and dogs. Our
 	\caption{Training (top) and testing (bottom) data for distinguishing cats and dogs.}
 	\label{fig:cani-gatti}
 \end{figure}
+
+\newpage
 
 The same can accure in facial recognition: the training data might not include subjects from specific ethnicities or age groups. When the model is deployed in a real-world environment, subjects that do not align with the training data may exhibit an unrecognizable feature distribution. Another cause of covariate shift could be variations in environmental conditions, such as lighting. For instance, an image categorization model trained under specific lighting conditions may perform poorly when deployed in an operational setting with different lighting.
 	

@@ -6,7 +6,7 @@
 
 We used the \textbf{Area under the Reciever Operating Characteristic Curve} (\textbf{ROC-AUC}) to evaluate model performance. The \textbf{ROC} plots the true positive rate against the false positive rate and ranges from 0 to 1, with higher values indicating better model performance.
 
-Because the AUC focuses on how well the model ranks positive instances above negative ones, it is generally more robust to imbalanceness in data distributions rather than metrics like accuracy or F1 score.
+Because the AUC focuses on how well the model ranks positive instances above negative ones, it is generally more robust to imbalanceness in data distributions rather than metrics like accuracy.
 
 \vspace{-0.3em}
 
@@ -41,7 +41,7 @@ As we will see, these models (except the logistic regression) have different hyp
 
 \subsection{Logistic Regression}
 
-Logistic regression models the relationship between features and the target variable using linear combinations of the input variables, which may not capture complex nonlinear patterns in the data. Given the assumed nonlinear relationships between variables, we included interaction terms (\texttt{X1:X2}, \texttt{X1:X3}, \texttt{X2:X3}, and \texttt{X1:X2:X3}) in the model.
+Logistic regression models the relationship between features and the target variable using linear combinations of the input variables, which may not capture complex nonlinear patterns in the data. Given the assumed nonlinear relationships between variables, which also includes intersactions, we decided to use as baseline model the one including all the interaction terms (\texttt{X1:X2}, \texttt{X1:X3}, \texttt{X2:X3}, and \texttt{X1:X2:X3}).
 
 We used the \texttt{statsmodels} library to fit a logistic regression model on the training dataset and evaluated it on the test set. The table below summarizes the coefficients, significance (\textit{P>|z|}), and confidence intervals for the fitted logistic regression baseline model.
 
@@ -65,15 +65,15 @@ We used the \texttt{statsmodels} library to fit a logistic regression model on t
         \bottomrule
     \end{tabular}
     \caption{\quad \textbf{Summary of Logistic Regression coefficients.} \newline
-	Coefficients with statistical significance ($p < 0.05$) are shown in red.}
+	Coefficients with statistical significance ($p < 0.05$) are hilighted in red.}
     \label{tab:regression_results}
 \end{table}
 
-As we can see from the table, for this data instance, the features $X_2$, $X_2:X_3$ and $X_1:X_2:X_3$ are not statistically significant, as their p-values are above the 0.05 threshold. This suggests that these features may not be relevant for predicting the target variable $Y$.
+As we can see from the table, for this data instance, the features $X_2$, $X_2:X_3$ and $X_1:X_2:X_3$ are not statistically significant, as their p-values are above the 0.05 threshold. This suggests that these features may not be relevant for predicting the target variable $Y$, but bare in mind that this is only one instance of the data and the results may vary across different instances.
 
 The following plots show the ROC curves and the AUC scores for the logistic regression model under different levels of covariate shift.
 
-\vspace{0.5em}
+\vspace{0.2em}
 
 \begin{figure}[H]
 	\centering
@@ -110,7 +110,7 @@ The best hyperparameters found are shown in the following table:
     \caption{Best hyperparameters found for the Random Forest model using 5-fold cross validation}
 \end{table}
 
-We also used a fixed \texttt{random\_state=0} (which is not actually an hyperparameter) to ensure reproducibility of results.
+We also used a fixed \texttt{random\_state=0} to ensure reproducibility of results.
 
 The following plot shows the ROC curves and the AUC scores for the Random Forest model under different levels of covariate shift.
 
@@ -222,8 +222,32 @@ As we can see from the plot, all the ensemble models (Random Forest, Gradient Bo
 
 \subsection{Statistical Analysis}
 
-To assess the statistical significance of the performance degradation observed in the models, we decided to replicate the experiment $N = 50$ times for each model and mixture probability.
+To give statistical support to our study we repeated this experiment $N = 50$ times. Keeping always the same training set (in order to not train the models several times), for each repetition we 
+defined a new shifted ditribution $\mathcal{N}(\boldsymbol{\mu}_{\text{shift}}, \boldsymbol{\Sigma}_{\text{shift}}) $;
+created 11 \textbf{testing} datasets $\mathcal{D}_\alpha$ with $\alpha \in \{0.0, 0.1, \ldots, 1.0\}$, where $\alpha$ represents the mixing probability as before and finally computed the ROC-AUC score for each model on each testing dataset.
 
-% boxplot explanation (mean of AUC scores across the 11 mixture probabilities, for each experiment. underline the fact of the MEAN)
+In \cref{fig:mean-boxplot} are shown the boxplot of the 50 values of ROC-AUC for each model, obtained by averaging the AUC scores over the 11 testing datasets for each mixing probability $\alpha$.
+
+As we can see from the plot, all the ensemble models shows pretty similar results, with respect to the median value, even though the display a different level of variability. In particular, the Random Forest Classifier is the one with the lowest interquartile range, followed by XGBoost. The logistic regression model, on the other hand, shows a lower median value and a higher variability compared to the ensemble models. The same resoults can be observed in \cref{fig:boxplot}, where the boxplot of the 50 values of ROC-AUC for each model and only for the datasets for mixing probability $\alpha=1.0$ (fully shifted dataset) are shown. As expected, the perfomance are globally worse then the previous one and the difference between the median values of the ensemble models and the logistic regression model is even more evident (ca. $10\%$). Also for this datasets all the ensambe models show a lower variability compared to the logistic regression model but very similar results among them.
+
+\newpage
+
+\vspace {2em}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{assets/mean_boxplot.png} 
+	\caption{\textbf{}}
+	\label{fig:mean-boxplot}
+\end{figure}
+
+\vspace {2em}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{assets/boxplot.png} 
+    \caption{\textbf{}}
+    \label{fig:boxplot}
+\end{figure}
 
 
