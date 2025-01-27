@@ -1,9 +1,8 @@
 pandas
 numpy
 scikit-learn
-pygam
 matplotlib
 seaborn
 xgboost
 scipy
-poetry-dynamic-versioning
+patsy

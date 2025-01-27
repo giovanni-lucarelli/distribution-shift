@@ -6,7 +6,6 @@ from multiprocessing import Pool, cpu_count
 from functools import partial
 from itertools import product
 import xgboost as xgb
-import time
 
 best_params = {
     "RandomForestClassifier" : {
@@ -18,10 +17,11 @@ best_params = {
         "random_state": 0
     },
     "GradientBoostingClassifier" : {
-        "n_estimators": 50,
-        "learning_rate": 0.05,
+        "n_estimators": 500,
+        "learning_rate": 0.005,
         "max_depth": 3,
-        "subsample": 0.4
+        "subsample": 0.4,
+        "random_state": 0
     },
     "XGBoost" : {
         #'n_estimators': 100, [default]
@@ -51,17 +51,19 @@ def grid_search_cv(estimator, param_grid, X_train, y_train, cv=5, scoring="roc_a
     return best_model
 
 def _evaluate_params(args):
-    """Optimized parameter evaluation + early stopping"""
+    """Optimized parameter evaluation with early stopping (GPU enabled)."""
     params, X, y, nfold, early_stopping = args
     local_params = params.copy()
-    # set objective and eval metric
-    local_params.update({'objective': 'binary:logistic', 'eval_metric': 'auc'})
-    # extract n_estimators and remove from local_params
-    # if not present, default to 100
+    # Set objective, eval metric, and GPU support
+    local_params.update({
+        'objective': 'binary:logistic',
+        'eval_metric': 'auc',
+        'tree_method': 'hist',   # Use GPU hist for faster training
+        'device': 'cuda'        # Use GPU acceleration
+    })
+    # Default n_estimators to 100 if not present
     num_boost_round = local_params.pop('n_estimators', 100)
-    # Create DMatrix
     dtrain = xgb.DMatrix(X, label=y)
-    # Execute CV
     cv_results = xgb.cv(
         params=local_params,
         dtrain=dtrain,
@@ -70,17 +72,16 @@ def _evaluate_params(args):
         seed=0,
         verbose_eval=False,
         num_boost_round=num_boost_round,
-        early_stopping_rounds=early_stopping  # <--- EARLY STOPPING
+        early_stopping_rounds=early_stopping
     )
-    # best auc e best round
+    # Get best AUC and corresponding round
     best_auc = cv_results['test-auc-mean'].max()
-    best_round = cv_results['test-auc-mean'].idxmax() + 1  # +1 -> index starts from 0
+    best_round = cv_results['test-auc-mean'].idxmax() + 1
     return best_auc, best_round, params
 
 def grid_search_cv_xgb(param_grid, X, y, nfold=5, early_stopping=10, n_jobs=-1, verbose=True):
-    start_time = time.time()
-    
-    # Crea tutte le combinazioni di iperparametri
+    """Grid search for XGBoost with GPU acceleration."""
+    # Create all hyperparameter combinations
     param_combinations = [
         dict(zip(param_grid.keys(), v)) for v in product(*param_grid.values())
     ]
@@ -94,23 +95,19 @@ def grid_search_cv_xgb(param_grid, X, y, nfold=5, early_stopping=10, n_jobs=-1, 
     if verbose:
         print(f"Running grid search with {n_jobs} cores")
     
-    # Prepara gli argomenti per l'evaluazione in parallelo
-    # Passiamo anche nfold ed early_stopping
     args = [(params, X, y, nfold, early_stopping) for params in param_combinations]
     
-    # Run parallel evaluation
+    # Parallel processing
     with Pool(processes=n_jobs) as pool:
         results = pool.map(_evaluate_params, args)
     
-    # results contiene tuple: (best_auc, best_round, original_params)
-    # Cerchiamo la tupla con best_auc massima
+    # Find best parameters based on AUC
     best_auc, best_round, best_params = max(results, key=lambda x: x[0])
     
-    # Ricostruisci il modello XGBClassifier con i best params
-    # Imposta n_estimators = best_round (ottenuto dall’Early Stopping in CV)
-    # Così il modello finale avrà il numero di alberi “ottimale”
     model_params = best_params.copy()
-    model_params['n_estimators'] = best_round  # Imposto la best iteration
+    model_params['n_estimators'] = best_round
+    model_params['tree_method'] = 'hist'  # Ensure GPU is used in final model
+    model_params['device'] = 'cuda'
     
     if verbose:
         print(f"Best Parameters: {best_params}")
@@ -119,3 +116,4 @@ def grid_search_cv_xgb(param_grid, X, y, nfold=5, early_stopping=10, n_jobs=-1, 
     best_model.fit(X, y)
     
     return best_model
+
