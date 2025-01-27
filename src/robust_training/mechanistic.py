@@ -1,14 +1,16 @@
 
 
-from typing import Tuple, Union, Optional
+from typing import Dict, Tuple, Union, Optional
 import numpy as np
 import pandas as pd
 
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator 
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score
+
+from sklearn.metrics import f1_score, roc_auc_score, accuracy_score
+import matplotlib.pyplot as plt
+
 
 try:
     from pygam import LogisticGAM
@@ -130,7 +132,7 @@ class MechanisticTrainer(RobustTrainer):
         
             if self.model_type == 'tree':
                 self.model = DecisionTreeClassifier(
-                    max_depth=10,
+                    max_depth=5,
                     random_state=self.random_state,
                     **kwargs
                 )
@@ -139,7 +141,7 @@ class MechanisticTrainer(RobustTrainer):
             elif self.model_type == 'rfc':
                 self.model = RandomForestClassifier(
                     n_estimators=100,
-                    max_depth=10,
+                    max_depth=5,
                     random_state=self.random_state,
                     **kwargs
                 )
@@ -148,7 +150,7 @@ class MechanisticTrainer(RobustTrainer):
                 self.model = GradientBoostingClassifier(
                     n_estimators=100,
                     learning_rate=0.05,
-                    max_depth=3,
+                    max_depth=5,
                     random_state=self.random_state,
                     **kwargs
                 )
@@ -217,80 +219,24 @@ class MechanisticTrainer(RobustTrainer):
             for _ in range(self.n_grad_steps):
                 # Estimate gradient wrt the correct label
                 
-                gradients = []
-                eps = self.eps
+                
                 
                 if self.ball:
                     
-                    TOT = 5
-                    # We’ll use a simple distance measure here
-                    distances = np.linalg.norm(X_aug.values - x_i, axis=1)
-                    nn_indices = np.argsort(distances)[:TOT]
-                    neighbors_grad_signs = []
-
-                    # Collect each neighbor’s numeric gradient sign
-                    for nn_idx in nn_indices:
-                        x_j = X_aug.iloc[nn_idx].values
-                        local_grads = []
-                        for feat_idx in range(len(x_j)):
-                            x_pos = x_j.copy()
-                            x_neg = x_j.copy()
-                            x_pos[feat_idx] += eps
-                            x_neg[feat_idx] -= eps
-                            prob_pos = self._predict_proba_for_label(x_pos, label_i)
-                            prob_neg = self._predict_proba_for_label(x_neg, label_i)
-                            grad_est = (prob_pos - prob_neg) / (2 * eps)
-                            # Record sign of neighbor’s gradient
-                            local_grads.append(np.sign(grad_est))
-                        neighbors_grad_signs.append(local_grads)
-
-                    # Majority vote per feature
-                    grad_signs = np.sign(np.sum(neighbors_grad_signs, axis=0))
-                    # Shift x_i accordingly
-                    # top_feats_idx = np.argsort(np.abs(grad_signs))[-self.top_k:]
-                    top_feats_idx = self.rng.choice(len(x_i), size=self.top_k, replace=False)
-                    for feat_idx in top_feats_idx:
-                        x_i[feat_idx] += grad_signs[feat_idx] * self.base_shift_factor
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                else:
-                    for feat_idx in range(len(x_i)):
-                        
-                        x_pos = x_i.copy()
-                        x_neg = x_i.copy()
-                        x_pos[feat_idx] += eps
-                        x_neg[feat_idx] -= eps
-
-                        prob_pos = self._predict_proba_for_label(x_pos, label_i)
-                        prob_neg = self._predict_proba_for_label(x_neg, label_i)
-                        grad_est = (prob_pos - prob_neg) / (2 * eps)
-                        
-                        gradients.append(grad_est)
-
-                    # Pick top_k features by absolute gradient
-                    #top_feats_idx = np.argsort(np.abs(gradients))[-self.top_k:]
-
-                    top_feats_idx = self.rng.choice(len(x_i), size=self.top_k, replace=False)
-                    # SHIFT: We want to SHIFT in the direction that *increases* the correct (old) label prob
-                    # so if grad_est is positive => increasing feature => higher probability => shift up
-                    # if grad_est is negative => decreasing feature => higher probability => shift down
                     
-                    for feat_idx in top_feats_idx:
-                        #g = gradients[feat_idx]
+                    features_index = np.random.choice(range(len(x_i)), self.top_k, replace=False)
+
+                    for feat_idx in features_index:
+                        direction_sign = self.rng.choice([-1, 1])
+                        x_i[feat_idx] += direction_sign * self.base_shift_factor                
+                
+            
+                else:
+                    
+                    
+                    features_index = np.random.choice(range(len(x_i)), self.top_k, replace=False)
+                    for feat_idx in features_index:
+                        
                         direction_sign = self.rng.choice([-1, 1])
                         x_i[feat_idx] += direction_sign * self.base_shift_factor    
                     
@@ -298,12 +244,7 @@ class MechanisticTrainer(RobustTrainer):
             noise = self.rng.normal(0, self.noise_scale, size=len(x_i))
             x_i += noise
 
-            # # Clip to global min/max to avoid out-of-bound expansions
-            # if self.task == 'regression':
-                
-            #     col_mins = X_aug.min().values
-            #     col_maxs = X_aug.max().values
-            #     x_i = np.clip(x_i, col_mins, col_maxs)
+            
             
 
             
@@ -328,9 +269,7 @@ class MechanisticTrainer(RobustTrainer):
         if self.model is None:
             self._init_model(**kwargs)
 
-        # 2) Initial fit on full dataset
-        print("[MechanisticTrainer] Initial fit on full dataset.")
-        self.model.fit(X, y)
+        
 
         
         X_aug = X.copy()
@@ -366,4 +305,154 @@ class MechanisticTrainer(RobustTrainer):
 
         print("[MechanisticTrainer] Robust model training completed.\n")
 
+
+
+def run_mechanistic_robust_training_and_eval_in_memory(
+    df_train: pd.DataFrame,
+    df_dict: Dict[float, pd.DataFrame],
+    target: str = 'Y',
+    n_rounds: int = 2,
+    model_type: str = 'gbc',  # 'gbc', 'tree', 'gam', 'rfc'
+    base_shift_factor: float = 0.1,
+    fraction_to_shift: float = 0.5,
+    random_state: int = 42,
+    noise_scale: float = 0.0001,
+    n_grad_steps: int = 1,
+    top_k: int = 3,
+    eps: float = 0.1,
+    ball: bool = False
+) -> Tuple[object, object]:
+    """
+    Train a baseline model and a robust model (via MechanisticTrainer),
+    then evaluate both on each dataset in df_dict.
+
+    Parameters
+    ----------
+    df_train : pd.DataFrame
+        Training set (with columns for features + target).
+    df_dict : Dict[float, pd.DataFrame]
+        Dictionary of test DataFrames, keyed by shift probability.
+    target : str
+        Name of the target column in df_train and df_dict.
+    n_rounds, model_type, base_shift_factor, fraction_to_shift, ...
+        Hyperparameters for robust training.
+
+    Returns
+    -------
+    baseline_model, robust_model
+        Both fitted models (sklearn estimators or LogisticGAM).
+    """
+    if target not in df_train.columns:
+        raise ValueError(f"Target column '{target}' not in training DataFrame.")
+
+    # -------------------------------------
+    # 1) Split training data into X, y
+    # -------------------------------------
+    X_train = df_train.drop(columns=[target])
+    y_train = df_train[target]
+    print(f"Training set shape = {X_train.shape};  Target distribution:\n{y_train.value_counts()}")
+
+    # -------------------------------------
+    # 2) Train Baseline Model
+    # -------------------------------------
+    print("\n=== Training Baseline Model ===")
+    if model_type == 'gbc':
+        baseline_model = GradientBoostingClassifier(
+            n_estimators=100,
+            learning_rate=0.05,
+            max_depth=5,
+            random_state=random_state
+        )
+    elif model_type == 'tree':
+        baseline_model = DecisionTreeClassifier(
+            max_depth=5,
+            random_state=random_state
+        )
+    elif model_type == 'gam':
+        if not PYGAM_AVAILABLE:
+            raise ImportError("pyGAM is not installed; install via `pip install pygam` or choose another model.")
+        baseline_model = LogisticGAM()
+    elif model_type == 'rfc':
+        baseline_model = RandomForestClassifier(
+            n_estimators=100,
+            max_depth=5,
+            random_state=random_state
+        )
+    else:
+        raise ValueError(f"Unsupported model_type '{model_type}'.")
+
+    baseline_model.fit(X_train, y_train)
+    print("=> Baseline model trained.")
+
+    # -------------------------------------
+    # 3) Train Robust Model
+    # -------------------------------------
+    print("\n=== Training Robust Model ===")
+    trainer = MechanisticTrainer(
+        model_type=model_type,
+        base_shift_factor=base_shift_factor,
+        n_rounds=n_rounds,
+        fraction_to_shift=fraction_to_shift,
+        n_grad_steps=n_grad_steps,
+        top_k=top_k,
+        random_state=random_state,
+        noise_scale=noise_scale,
+        eps=eps,
+        ball=ball,
+        task='classification'
+    )
+    trainer.fit(X_train, y_train)
+    robust_model = trainer.model
+    print("=> Robust model trained.")
+
+    # -------------------------------------
+    # 4) Evaluate on each dataset in df_dict
+    # -------------------------------------
+    delta_auc_values = []
+
+    print("\n=== Evaluation on Shifted Datasets ===")
+    for shift_prob, df_test in sorted(df_dict.items(), key=lambda x: x[0]):
+        if target not in df_test.columns:
+            print(f"Skipping shift={shift_prob}: Missing target '{target}' in test DataFrame.")
+            continue
+
+        X_test = df_test.drop(columns=[target])
+        y_test = df_test[target]
+
+        # -- Baseline Predictions
+        y_pred_b = baseline_model.predict(X_test)
+        try:
+            y_proba_b = baseline_model.predict_proba(X_test)[:, 1]
+            auc_b = roc_auc_score(y_test, y_proba_b)
+        except:
+            auc_b = np.nan
+
+        # -- Robust Predictions  
+        y_pred_r = robust_model.predict(X_test)
+        try:
+            y_proba_r = robust_model.predict_proba(X_test)[:, 1]  
+            auc_r = roc_auc_score(y_test, y_proba_r)
+        except:
+            auc_r = np.nan
+
+        acc_b = accuracy_score(y_test, y_pred_b)
+        f1_b = f1_score(y_test, y_pred_b)
+        acc_r = accuracy_score(y_test, y_pred_r) 
+        f1_r = f1_score(y_test, y_pred_r)
+
+        print(f"\nShift = {shift_prob:.1f}")
+        print(f"  Baseline => Accuracy: {acc_b:.3f}, F1: {f1_b:.3f}, AUC: {auc_b:.3f}")
+        print(f"  Robust   => Accuracy: {acc_r:.3f}, F1: {f1_r:.3f}, AUC: {auc_r:.3f}")
+
+        if not np.isnan(auc_r) and not np.isnan(auc_b):
+            delta = auc_r - auc_b
+            delta_auc_values.append((shift_prob, delta))
+            print(f"  Delta AUC (Robust - Baseline) = {delta:.4f}")
+
+   
+
+
+        
+
+    return baseline_model, robust_model
 

@@ -3,7 +3,7 @@
 \begin{frame}{Training Dataset: Features}
 
     The dataset consists of $n = 10^4$ observations with 3 features and 1 binary target variable.\\\vspace{0.3cm}
-    \pause\textbf{Features:}
+    \textbf{Features:}
     \begin{itemize}
         \item $ \boldsymbol{X}_{\text{train}} = (X_{\text{train}\,1}, X_{\text{train}\,2}, X_{\text{train}\,3}) \sim \mathcal{N}(\boldsymbol{\mu}_{\text{train}}, \boldsymbol{\Sigma}_{\text{train}}) $
         \item $ \mu_{\text{train}\,i} \sim \mathcal{U}_{[0,1]} $ for $ i = 1, 2, 3 $
@@ -14,18 +14,6 @@
 
 \end{frame}
 
-\begin{frame}{Training Dataset: Target Variable}
-    Building the \textbf{target variable} $Y\in\{0,1\}$:
-
-    \begin{enumerate}
-        \item $$ 
-        z = \beta_0 + \sum_{i=1}^3 \beta_i x_i + \sum_{i=1}^3 \beta_{ii} x_i^2 + \sum_{i=1}^{2} \sum_{j=i+1}^3 \beta_{ij} x_i x_j\,,   \quad \beta_{\cdot} \sim \mathcal{U}_{[-1,1]}
-        $$
-        \item $$ p = \frac{1}{1 + e^{-z}}$$
-        \item $$ Y \sim \text{Be}(p)$$
-    \end{enumerate}
-\end{frame}
-
 \begin{frame}{Testing Dataset}
 
     Same dataset structure as the train set, but:
@@ -34,35 +22,42 @@
         \item $ \boldsymbol{\mu}_{\text{shift}} = \mathcal{Q}_{0.05}(\boldsymbol{X}_{\text{train}})$
         \item $ [\boldsymbol{\Sigma}_{\text{shift}}]_{i,j} \sim \mathcal{U}_{[-0.5,0.5]} $ for $ i, j = 1, 2, 3 $
     \end{itemize}
-    
-\end{frame}
 
-\begin{frame}{Original and Shiftd Features}
     \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{scatter_plots.jpg}
     \end{figure}
+    
 \end{frame}
 
-\begin{frame}{Label Distribution in Train Set} 
+
+\begin{frame}{Target Variable}
+    Building the \textbf{target variable} $Y\in\{0,1\}$:
+        $$ 
+        z = \beta_0 + \sum_{i=1}^3 \beta_i x_i + \sum_{i=1}^3 \beta_{ii} x_i^2 + \sum_{i=1}^{2} \sum_{j=i+1}^3 \beta_{ij} x_i x_j\,,   \quad \beta_{\cdot} \sim \mathcal{U}_{[-1,1]}
+        $$\\
+        $$ Y \sim \text{Be}(p)\,, \quad p = \frac{1}{1 + e^{-z}}$$
+
+\end{frame}
+
+\begin{frame}{Label Distributions} 
     \vfill
     \centering
-    \includegraphics[width=0.7\textwidth]{pairplot.jpg}
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{pairplot.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{pairplotshift.jpg}
+    \end{minipage}
+    \vfill
+    \textbf{Note: IR} from $1.19$ to $2.36$ 
     \vfill
 
 \end{frame}
 
-\begin{frame}{Label Distribution in Shifted Test Set}
-    \begin{figure}
-        \centering
-        \vfill
-        \includegraphics[width=0.7\textwidth]{pairplotshift.jpg}
-        \vfill
-        \textbf{Note: IR} from $1.19$ to $2.36$ 
-        \vfill
-    
-    \end{figure}
-\end{frame}
 
 \begin{frame}{Testing Mixture}
     
