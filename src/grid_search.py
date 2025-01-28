@@ -10,29 +10,30 @@ import xgboost as xgb
 best_params = {
     "RandomForestClassifier" : {
         "n_estimators": 125,
-        "criterion": "gini",
         "max_depth": 6,
-        #"min_samples_leaf": 1, [= default]
+        #"criterion": "gini",       [default]
+        #"min_samples_leaf": 1,     [default]
         "min_samples_split": 5,
         "random_state": 0
     },
     "GradientBoostingClassifier" : {
         "n_estimators": 500,
-        "learning_rate": 0.005,
         "max_depth": 3,
+        "learning_rate": 0.005,
         "subsample": 0.4,
         "random_state": 0
     },
     "XGBoost" : {
-        #'n_estimators': 100, [default]
-        'learning_rate': 0.1,
+        #'n_estimators': 100,       [default]
         'max_depth': 6,
-        #'min_child_weight': 2,
+        'learning_rate': 0.1,
         'subsample': 0.7,
-        #'colsample_bytree': 1.0,
-        #'reg_alpha': 1,
-        #'reg_lambda': 1,
-        'gamma': 5
+        #'min_child_weight': 1,     [default]
+        #'colsample_bytree': 1.0,   [default]
+        #'reg_alpha': 0,            [default]
+        #'reg_lambda': 1,           [default]
+        'gamma': 5,
+        "random_state": 0
     },
 }
 
